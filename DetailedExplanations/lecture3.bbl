@@ -1,0 +1,10 @@
+\begin{thebibliography}{1}
+
+\bibitem{FLINTArbDocs}
+{The FLINT development team}.
+\newblock {Arb}: arbitrary-precision real numbers, {FLINT} documentation.
+\newblock \url{https://flintlib.org/doc/arb.html}, 2026.
+\newblock Accessed 13 September 2026. Recorded certification runs identify
+  their own FLINT version.
+
+\end{thebibliography}

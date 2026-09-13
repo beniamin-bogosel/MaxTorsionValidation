@@ -1,0 +1,354 @@
+load "ff-NLopt"
+load "ff-Ipopt"
+load "Element_P4"
+load "Element_P3";
+load "lapack"
+include "macro_ddm.idp" // Additional DDM functions
+verbosity = 0;
+cout.precision(16);
+macro Pk P1//
+macro Pk0 P0//
+macro grad(u) [dx(u),dy(u)]//
+int k = 0; // the eigenvalue to be optimized: k = 0 corresponds to 1
+int meshp = getARGV("-npts" , 30); // mesh parameter
+int n = getARGV("-nvert" , 5); // number of vertices
+real cx=0,cy=0;
+
+
+int finalComp =0;
+
+real[int] vReg = pi*[0,0,0,7.25519745693687140237631303056862,
+             6.28318530717958647692528676655901,
+             6.02213793204263387829800871005,
+             5.9174178316136612156885745768,
+             5.8664493126559858577124749417,
+             5.83849143359244285051664037956,
+             5.82182680227026573173554644371,
+             5.81126035921911602278881646881,
+             5.80423063671740072187839445285,
+				 5.7993698043565000793150253110,
+             5.79590026685601470979077106333,
+             5.79335700527119455327322707868,
+             5.7914500106515799756938484981];
+
+
+//exit(0);
+
+
+
+func real[int] rand(int h){
+  real[int] vec(h);
+  for(int i = 0;i<h;i++){
+     vec(i) = randreal1();
+  }
+  return vec;
+}
+
+//cout << rand(10) << endl;
+
+
+
+real[int] th = rand(n);
+//th.sort;
+//cout << "Angles " << th << endl;
+real[int] reg = 0:(n-1);
+reg = 2*pi/n*reg;
+//reg = reg+(0.1*2*pi/n)*th;
+
+real[int] xx(n);
+real[int] yy(n);
+
+th = 2*pi*th;
+xx = cos(reg);
+yy = sin(reg);
+
+real[int] vec0 = [xx,yy];
+
+//xx = 5*xx;
+//yy = 5*yy;
+
+int[int] one(n);
+one = 1;
+
+
+int[int] NC=meshp*one;  
+
+int[int] ind1 = 0:1:n-1;
+int[int] ind2 = ind1;
+int[int] ind3 = ind1;
+ind2(1:n-1) = 0:1:n-2;
+ind2(0) = n-1;
+ind3(n-1) = 0;
+ind3(0:n-2) = 1:n-1;
+
+real alpha = 0.001;
+real minv = 100000;
+int count = 1;
+
+func real stdev(real[int] &V){
+   real av = V.sum/V.n;
+   real sd = 0;
+   for(int i=0;i<V.n;i++){
+      sd = sd+(V[i]-av)^2;
+   }
+   return sqrt(sd/V.n);
+}
+
+/// start calcarea function
+
+func real[int] calcarea(real[int] &vect){
+   real Area = 0;
+   real[int] xx = vect(0:n-1);
+   real[int] yy = vect(n:vect.n-1);
+   real[int] gradt(vect.n);
+   for(int j=0;j<n;j++){
+       Area+=0.5*(xx[j]*yy[ind3[j]]-xx[ind3[j]]*yy[j]);
+       gradt(2*j) = 0.5*(yy[ind3[j]]-yy[ind2[j]]);
+       gradt(2*j+1) = 0.5*(xx[ind2[j]]-xx[ind3[j]]);
+   }
+   real[int] res;
+   res = [Area,gradt];
+   return res;
+}
+
+real[int,int] HessArea(2*n,2*n);
+HessArea = 0;
+for(int i=0;i<n;i++){
+   int ni = (i+1)%n;
+   HessArea(2*ni+1,2*i)=0.5;
+   HessArea(2*i+1,2*ni)=-0.5;
+   HessArea(2*i,2*ni+1)=0.5;
+   HessArea(2*ni,2*i+1)=-0.5;
+}
+
+
+
+
+
+real[int] gradE(2*n);
+real val;
+
+
+/// start polya function
+func real[int,int] PolygonSplit(real[int] &vect,int edgesplit){
+
+	int halfsize = vect.n/2;
+	real[int] xx(halfsize);
+	real[int] yy(halfsize);
+  
+   xx = vect(0:halfsize-1);
+   yy = vect(halfsize:vect.n-1);
+
+   real[int] xs(3),ys(3);
+
+   border tr(t=0,1; i){
+    	int ni = (i+1)%3;
+    	x=(1-t)*xs[i]+t*xs[ni]; 
+    	y=(1-t)*ys[i]+t*ys[ni];
+    	label=i;
+	}
+  
+   mesh[int] Tri(halfsize);
+   mesh Th;
+   for(int i=0;i<halfsize;i++){
+      int ni = (i+1)%n;
+      xs[0] = xx[i];
+      xs[1] = xx[ni];
+      ys[0] = yy[i];
+      ys[1] = yy[ni];
+      xs[2] = cx;
+      ys[2] = cy;
+      int[int] nnn = [edgesplit,edgesplit,edgesplit];
+      Tri[i] = buildmesh(tr(nnn));
+      //plot(Tri[i],wait=0); 
+      Th = Th+Tri[i];
+   }
+   mesh Th0 = Th;
+	//Th= adaptmesh(Th,1./100,IsMetric=1,nbvx=20000);
+   cout << "Vertices: " << Th.nv << endl;
+   //plot(Th0,wait=1);
+   fespace Vh00(Th0,P0);
+   fespace Vh01(Th0,P1);
+   Vh00 reg = region;
+   Vh00 regions = 0;
+   for(int i=0;i<halfsize;i++){
+      regions = regions+i*chi(Tri[i]);
+   } 
+   Th = trunc(Th0,1,split=meshp);
+   fespace Vh(Th,Pk);
+   fespace Vh0(Th,Pk0);
+   Vh u,v;
+   problem Lap(u,v) = int2d(Th)(grad(u)'*grad(v))
+                     -int2d(Th)(v)
+                     +on(0,u=0);
+   plot(regions,fill=1,cmm="Regions");
+   Lap;
+   plot(u,fill=1);// Solution for the torsion function
+   real[int] result;
+  
+   Vh0 grh = 0.5*(dx(u)^2+dy(u)^2)-u;
+   val = 0.5*int2d(Th)(u);
+   Vh01 phi0;
+   Vh phi,Unk,Unkx,Unky;
+   Vh[int] Ux(n),Uy(n);
+   Vh[int] Phi(n);
+   problem Solvex(Unkx,v) 
+        = int2d(Th)(grad(Unkx)'*grad(v))
+         +int2d(Th)(grad(u)'*grad(v)*dx(phi))
+         -int2d(Th)(grad(v)'*grad(phi)*dx(u)+grad(u)'*grad(phi)*dx(v))
+         -int2d(Th)(v*dx(phi))
+         +on(0,Unkx=0);
+	problem Solvey(Unky,v) 
+        = int2d(Th)(grad(Unky)'*grad(v))
+         +int2d(Th)(grad(u)'*grad(v)*dy(phi))
+         -int2d(Th)(grad(v)'*grad(phi)*dy(u)+grad(u)'*grad(phi)*dy(v))
+         -int2d(Th)(v*dy(phi))
+         +on(0,Unky=0);
+   int pos = 0;
+
+   int[int] index(n);
+   // Detect indices for vertices...
+   for(int i=0;i<Th0.nv;i++){
+      for(int j=0;j<n;j++){
+          if(abs(Th0(i).x-xx[j])+abs(Th0(i).y-yy[j])<1e-6){
+              index[j] = i;
+              break;
+          }
+      }
+   } 
+   cout << index << endl;
+
+   for(int i = 0;i<n;i++){
+         // Choose only outer vertices
+
+         // Construct P1 piecewise affine on sides, 0,1 at vertices
+      	phi0[] = 0;
+      	phi0[][Th0(index(i))] = 1;
+         phi = phi0;
+         Phi[i][] = phi[];
+      	plot(phi,fill=1,wait=1,cmm="vertex "+i);
+         Solvex; Ux[i][] = Unkx[]; //plot(Unk,fill=1,wait=1,cmm="Ux"+i);
+			Solvey; Uy[i][] = Unky[]; //plot(Unk,fill=1,wait=1,cmm="Uy"+i);
+	  gradE[2*i] = int2d(Th)(-grh*dx(phi)+grad(u)'*grad(phi)*dx(u));
+     gradE[2*i+1] = int2d(Th)(-grh*dy(phi)+grad(u)'*grad(phi)*dy(u));
+   }
+
+   real[int,int] M(2*n,2*n);
+   M = 0;
+   for(int i=0;i<n;i++){
+      for(int j=0;j<n;j++){
+          M(2*i,2*j) = int2d(Th)(grad(Ux[j])'*grad(Ux[i]))
+                      +int2d(Th)(-grh*dx(Phi[j])*dx(Phi[i])+grad(u)'*grad(Phi[i])*dx(Phi[j])*dx(u))
+                      +int2d(Th)(-grh*dx(Phi[j])*dx(Phi[i])+grad(u)'*grad(Phi[j])*dx(u)*dx(Phi[i]))
+                      +int2d(Th)(grh*2*dx(Phi[i])*dx(Phi[j]))
+                      -int2d(Th)(grad(Phi[j])'*grad(u)*dx(Phi[i])*dx(u))
+                      -int2d(Th)(grad(Phi[i])'*grad(u)*dx(u)*dx(Phi[j]))
+                      -int2d(Th)(grad(Phi[i])'*grad(Phi[j])*dx(u)*dx(u));
+      M(2*i+1,2*j+1) = int2d(Th)(grad(Uy[j])'*grad(Uy[i]))
+                      +int2d(Th)(-grh*dy(Phi[j])*dy(Phi[i])+grad(u)'*grad(Phi[i])*dy(Phi[j])*dy(u))
+                      +int2d(Th)(-grh*dy(Phi[j])*dy(Phi[i])+grad(u)'*grad(Phi[j])*dy(u)*dy(Phi[i]))
+                      +int2d(Th)(grh*2*dy(Phi[i])*dy(Phi[j]))
+                      -int2d(Th)(grad(Phi[j])'*grad(u)*dy(Phi[i])*dy(u))
+                      -int2d(Th)(grad(Phi[i])'*grad(u)*dy(u)*dy(Phi[j]))
+                      -int2d(Th)(grad(Phi[i])'*grad(Phi[j])*dy(u)*dy(u));
+      M(2*i+1,2*j)   = int2d(Th)(grad(Ux[j])'*grad(Uy[i]))
+                      +int2d(Th)(-grh*dx(Phi[j])*dy(Phi[i])+grad(u)'*grad(Phi[i])*dx(Phi[j])*dy(u))
+                      +int2d(Th)(-grh*dx(Phi[j])*dy(Phi[i])+grad(u)'*grad(Phi[j])*dx(u)*dy(Phi[i]))
+                      +int2d(Th)(grh*(dx(Phi[i])*dy(Phi[j])+dy(Phi[i])*dx(Phi[j])))
+                      -int2d(Th)(grad(Phi[j])'*grad(u)*dx(Phi[i])*dy(u))
+                      -int2d(Th)(grad(Phi[i])'*grad(u)*dx(u)*dy(Phi[j]))
+                      -int2d(Th)(grad(Phi[i])'*grad(Phi[j])*dx(u)*dy(u));
+      M(2*i,2*j+1)   = int2d(Th)(grad(Uy[j])'*grad(Ux[i]))
+                      +int2d(Th)(-grh*dy(Phi[j])*dx(Phi[i])+grad(u)'*grad(Phi[i])*dy(Phi[j])*dx(u))
+                      +int2d(Th)(-grh*dy(Phi[j])*dx(Phi[i])+grad(u)'*grad(Phi[j])*dy(u)*dx(Phi[i]))
+                      +int2d(Th)(grh*(dx(Phi[i])*dy(Phi[j])+dy(Phi[i])*dx(Phi[j])))
+                      -int2d(Th)(grad(Phi[j])'*grad(u)*dy(Phi[i])*dx(u))
+                      -int2d(Th)(grad(Phi[i])'*grad(u)*dy(u)*dx(Phi[j]))
+                      -int2d(Th)(grad(Phi[i])'*grad(Phi[j])*dy(u)*dx(u));
+      }
+   }
+
+   return M;
+}
+/// end Polya function
+
+real[int,int] Mat = PolygonSplit(vec0,1);
+
+
+
+real[int,int] Mat0 = Mat;
+
+
+//exit(0);
+
+cout << Mat << endl;
+
+cout << "Grad: " << endl;
+cout << gradE << endl;
+
+cout << "Torsion: " << val << endl;
+
+real[int] AreaRes = calcarea(vec0);
+real tt = (2/val/AreaRes[0])^(1.0/6.0);
+
+real[int,int] GlobalHess(2*n,2*n);
+
+
+
+
+real[int] gradArea = AreaRes(1:AreaRes.n-1);
+real[int] fact = gradArea./gradE;
+
+real kappa;
+
+for(int i=0;i<2*n;i++){
+   if(abs(gradArea[i])>1e-3){
+      kappa = gradE[i]/gradArea[i]/val^2;
+   }
+}
+
+real[int] rescGrad = val^2*kappa*gradArea;
+cout << "Show gradients: " << endl;
+cout << rescGrad << endl;
+cout << gradE << endl;
+
+real Area = AreaRes[0];
+cout << "Area: "<< Area << endl;
+
+Mat = Mat;
+gradE = gradE;
+val = val;
+
+real[int,int] MidMat(2*n,2*n);
+MidMat  = gradE*gradE';
+
+cout << "MidMat: " << MidMat << endl;
+
+GlobalHess=0;
+GlobalHess = -1/val^2*Mat+2/val^3*MidMat;
+GlobalHess = GlobalHess+kappa*HessArea;
+cout << GlobalHess << endl;
+
+
+
+cout << " Computing Eigenvalues " << endl;
+matrix A = Mat0;
+
+real[int, int] fC(2*n, 2*n);
+for[i,j,v : A] fC(i, j) = v;
+complex[int, int] vectors(2*n, 2*n);
+complex[int] values(2*n);
+dgeev(fC, values, vectors);
+
+
+
+real[int] rValues(2*n);
+for(int i=0;i<2*n;i++){
+  rValues[i] = real(values[i]);
+}
+
+rValues.sort;
+
+for(int i=0;i<2*n;i++){
+   cout << i+1 << ":  " << rValues[i] << endl;
+}

@@ -1,0 +1,386 @@
+{
+  "snapshot_date": "2026-09-13",
+  "scope": "Sources consulted for the course, not a new certification run",
+  "files": [
+    {
+      "path": "theory/torsional_rigidity_regular_polygon.tex",
+      "sha256": "43806f67e1336eb310b4d2cd6305a6fb97ffda0de015bfdd38590ad25fe68ac4",
+      "functions": []
+    },
+    {
+      "path": "theory/torsional_rigidity_regular_polygon.aux",
+      "sha256": "8d35f61022cdc1a8714675bd594de9cb2bee40cab4bde0403e1769004ac00e47",
+      "functions": []
+    },
+    {
+      "path": "theory/torsional_rigidity_regular_polygon.bib",
+      "sha256": "f68cbef1eaf33bd9901b0ab32c6374dfc8a8aafa06fa92c2fa7cdc0d84c099e0",
+      "functions": []
+    },
+    {
+      "path": "Papers/Polya_MinLoc_reviewed.pdf",
+      "sha256": "6d49cd356b76c2f5b062a0092398858aee503c5ae7b57e1fb3c5c5d73446422b",
+      "functions": []
+    },
+    {
+      "path": "PROVENANCE.md",
+      "sha256": "cb24305b3edc145ce1405e7bc8318b9c3178daae11967f89fe0190e303959d3c",
+      "functions": []
+    },
+    {
+      "path": "MaxTorsionValidation/flint/second_lifting_cert.c",
+      "sha256": "72018eab35a300d00cd81208ccb58c916625ef4caaf2184a0df292b6607edf9b",
+      "functions": [
+        {
+          "name": "die",
+          "line": 24
+        },
+        {
+          "name": "cmp_edge",
+          "line": 26
+        },
+        {
+          "name": "cmp_tri_key",
+          "line": 33
+        },
+        {
+          "name": "dsu_root",
+          "line": 41
+        },
+        {
+          "name": "dsu_join",
+          "line": 47
+        },
+        {
+          "name": "certify_mesh_topology",
+          "line": 56
+        },
+        {
+          "name": "read_ball",
+          "line": 100
+        },
+        {
+          "name": "read_field",
+          "line": 107
+        },
+        {
+          "name": "gradient",
+          "line": 114
+        },
+        {
+          "name": "add_affine_square",
+          "line": 120
+        },
+        {
+          "name": "affine_integral",
+          "line": 129
+        },
+        {
+          "name": "assemble_triangle_geometry",
+          "line": 136
+        },
+        {
+          "name": "symmetric_norm",
+          "line": 156
+        },
+        {
+          "name": "coefficients",
+          "line": 166
+        },
+        {
+          "name": "state_error",
+          "line": 211
+        },
+        {
+          "name": "canonical_gid",
+          "line": 223
+        },
+        {
+          "name": "canonical_tri_key",
+          "line": 232
+        },
+        {
+          "name": "validate_regular_inputs",
+          "line": 240
+        },
+        {
+          "name": "interior_residual_norm",
+          "line": 349
+        },
+        {
+          "name": "read_mode_reference",
+          "line": 357
+        },
+        {
+          "name": "main",
+          "line": 373
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/flint/mode_cert.c",
+      "sha256": "a03136a362510ce663bee61d94e8de2fcf48a3000abc523a5dea8655b12da0ff",
+      "functions": [
+        {
+          "name": "usage",
+          "line": 18
+        },
+        {
+          "name": "print_ball",
+          "line": 24
+        },
+        {
+          "name": "main",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/flint/majorant_cert.c",
+      "sha256": "3f7ca6edc78a5979dfe68ea035e59eb3647e846523a592ff5c87ec148ae88aa7",
+      "functions": [
+        {
+          "name": "die",
+          "line": 26
+        },
+        {
+          "name": "read_arb",
+          "line": 32
+        },
+        {
+          "name": "read_field",
+          "line": 40
+        },
+        {
+          "name": "grad_field",
+          "line": 51
+        },
+        {
+          "name": "add_affine_square",
+          "line": 62
+        },
+        {
+          "name": "energy_norm",
+          "line": 78
+        },
+        {
+          "name": "state_majorant",
+          "line": 92
+        },
+        {
+          "name": "material_majorant",
+          "line": 119
+        },
+        {
+          "name": "print_ball",
+          "line": 159
+        },
+        {
+          "name": "main",
+          "line": 164
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/flint/residual_cert.c",
+      "sha256": "b709fece003d81302cf39fec632721ade37b7bc307212203640b921abe0687c0",
+      "functions": [
+        {
+          "name": "read_arb",
+          "line": 19
+        },
+        {
+          "name": "main",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/flint/second_variation_cert.c",
+      "sha256": "a88b6ff9ce7330b3d3d7bf18c70e9c04dfd16643eed0b36c48a1b4ec60c68573",
+      "functions": [
+        {
+          "name": "die",
+          "line": 14
+        },
+        {
+          "name": "set_nonnegative",
+          "line": 20
+        },
+        {
+          "name": "main",
+          "line": 26
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/flint/Makefile",
+      "sha256": "e750955d975c8ea318ab3a6158232df6d45ef3f9a4db45a5caa565e71ffad67f",
+      "functions": []
+    },
+    {
+      "path": "MaxTorsionValidation/freefem/certify_with_rotations.py",
+      "sha256": "f8bc51066f6827b0a30f8a1a86575d6510cb0fb6e51efa9a3efc66f86b3f4b08",
+      "functions": [
+        {
+          "name": "run",
+          "line": 25
+        },
+        {
+          "name": "ball",
+          "line": 35
+        },
+        {
+          "name": "main",
+          "line": 42
+        },
+        {
+          "name": "evaluate",
+          "line": 131
+        },
+        {
+          "name": "verify",
+          "line": 183
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/freefem/rotation_cache.py",
+      "sha256": "767811dd0efbd8d57f2b4a9269a0f76c04caacc1246b8d9db8bf7509378f75ea",
+      "functions": [
+        {
+          "name": "prepare",
+          "line": 9
+        },
+        {
+          "name": "direction",
+          "line": 76
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/freefem/certificate_build.py",
+      "sha256": "f23e9a1c114cc88e7d1a7fdf2ea782e11c44025400dad0c0893f2570ecaf2357",
+      "functions": [
+        {
+          "name": "build_verifiers",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/freefem/second_variation_lifting_rotations.edp",
+      "sha256": "6065ff84060729c8d5c849ebf32644eaf45439d4ef7bfda5bef8f3b5bb86ad41",
+      "functions": [
+        {
+          "name": "state",
+          "line": 72
+        },
+        {
+          "name": "firstQ",
+          "line": 74
+        },
+        {
+          "name": "firstR",
+          "line": 77
+        },
+        {
+          "name": "lifting",
+          "line": 80
+        },
+        {
+          "name": "fitCurl",
+          "line": 121
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/freefem/torsion_hessian_rotations.edp",
+      "sha256": "72c8d599c659598170ccb0808fcf0e062bf12d052d09e4bdc9f4b4336750760b",
+      "functions": [
+        {
+          "name": "torsion",
+          "line": 48
+        },
+        {
+          "name": "materialX",
+          "line": 67
+        },
+        {
+          "name": "materialY",
+          "line": 73
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/freefem/test_extended_certificates.py",
+      "sha256": "5432a1a3d1c1e20d985e9c3b061c7bdf25a405a65ac2906a18d88f6cfb47d395",
+      "functions": [
+        {
+          "name": "run",
+          "line": 25
+        },
+        {
+          "name": "ball",
+          "line": 35
+        },
+        {
+          "name": "main",
+          "line": 42
+        },
+        {
+          "name": "evaluate",
+          "line": 117
+        },
+        {
+          "name": "verify",
+          "line": 167
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/freefem/summarize_extended_certificates.py",
+      "sha256": "017913de0e7c77f45107f113fd34cc13b00b6d23c07e847b5959209becc24cc2",
+      "functions": [
+        {
+          "name": "audit",
+          "line": 11
+        },
+        {
+          "name": "main",
+          "line": 93
+        }
+      ]
+    },
+    {
+      "path": "MaxTorsionValidation/results/extended_m64_table_data.json",
+      "sha256": "3f9d3031ab58f76b9be5bea19f831b5c1022729dcb6a3b6075e44acee8abffea",
+      "functions": []
+    },
+    {
+      "path": "MaxTorsionValidation/results/extended_m128_table_data.json",
+      "sha256": "cd71a754cf619f664bee35946864e68077d16cbe54d28994fd1dd4f275f10144",
+      "functions": []
+    },
+    {
+      "path": "MaxTorsionValidation/results/validity_review_20260909/README.md",
+      "sha256": "24fcbcafa97ab1190dde47562549b6fb437d6e394594c70d822ab325d520c835",
+      "functions": []
+    },
+    {
+      "path": "MaxTorsionValidation/results/validity_review_20260909/n21-replay-provenance.json",
+      "sha256": "b572b45f6796eb41d97ff68f2c513112acb5e34250acd30784b683d4fab88c61",
+      "functions": []
+    },
+    {
+      "path": "MaxTorsionValidation/results/validity_review_20260909/archive-integrity.json",
+      "sha256": "8625821a38e2073bb955ceb9786ec0ea4c53d7b1f93d9b8103f1ec0b7053bc32",
+      "functions": []
+    },
+    {
+      "path": "MaxTorsionValidation/results/validity_review_20260909/archive-hash-mismatches.json",
+      "sha256": "be837a7046df5e66fa2574d16631fb24a05969ec5abd84b07ed801063b8e963d",
+      "functions": []
+    }
+  ]
+}

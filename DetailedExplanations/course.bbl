@@ -1,0 +1,58 @@
+\begin{thebibliography}{1}
+
+\bibitem{BogoselBucur2024}
+B.~Bogosel and D.~Bucur.
+\newblock On the polygonal {Faber--Krahn} inequality.
+\newblock {\em Journal de l'\'Ecole polytechnique---Math\'ematiques},
+  11:19--105, 2024.
+
+\bibitem{BogoselBucurValidated2024}
+B.~Bogosel and D.~Bucur.
+\newblock Polygonal {Faber--Krahn} inequality: local minimality via validated
+  computing, 2024.
+\newblock arXiv:2406.11575.
+
+\bibitem{Grisvard1985}
+P.~Grisvard.
+\newblock {\em Elliptic Problems in Nonsmooth Domains}, volume~24 of {\em
+  Monographs and Studies in Mathematics}.
+\newblock Pitman, Boston, 1985.
+
+\bibitem{Laurain2020}
+A.~Laurain.
+\newblock Distributed and boundary expressions of first and second order shape
+  derivatives in nonsmooth domains.
+\newblock {\em Journal de Math{\'e}matiques Pures et Appliqu{\'e}es},
+  134:328--368, 2020.
+
+\bibitem{LiLiu2018}
+Q.~Li and X.~Liu.
+\newblock Explicit finite element error estimates for nonhomogeneous {Neumann}
+  problems.
+\newblock {\em Applications of Mathematics}, 63(3):367--379, 2018.
+
+\bibitem{LiuOishi2013}
+X.~Liu and S.~Oishi.
+\newblock Verified eigenvalue evaluation for the {Laplacian} over polygonal
+  domains of arbitrary shape.
+\newblock {\em SIAM Journal on Numerical Analysis}, 51(3):1634--1654, 2013.
+
+\bibitem{Repin2008}
+S.~Repin.
+\newblock {\em A Posteriori Estimates for Partial Differential Equations},
+  volume~4 of {\em Radon Series on Computational and Applied Mathematics}.
+\newblock Walter de Gruyter, Berlin, 2008.
+
+\bibitem{Tee2007}
+G.~J. Tee.
+\newblock Eigenvectors of block circulant and alternating circulant matrices.
+\newblock {\em New Zealand Journal of Mathematics}, 36:195--211, 2007.
+
+\bibitem{FLINTArbDocs}
+{The FLINT development team}.
+\newblock {Arb}: arbitrary-precision real numbers, {FLINT} documentation.
+\newblock \url{https://flintlib.org/doc/arb.html}, 2026.
+\newblock Accessed 13 September 2026. Recorded certification runs identify
+  their own FLINT version.
+
+\end{thebibliography}

@@ -1,0 +1,26 @@
+\documentclass[11pt]{article}
+\input{preamble.tex}
+\title{Regular polygons and torsional rigidity\\A course in three lectures}
+\author{Detailed explanations accompanying the torsion manuscript}
+\date{13 September 2026}
+\begin{document}
+\maketitle
+These notes follow the manuscript from the vertex Hessian to a computer-assisted
+local maximality proof. Each lecture is also available as a separate PDF.
+The second lecture develops a regularity proof at the regular polygon and
+identifies what remains to establish the full neighborhood-uniform conjecture.
+The numerical implementation described is the maintained
+\path{MaxTorsionValidation/} source snapshot of 13 September 2026.
+\tableofcontents
+\clearpage
+\part{From the shape Hessian to its eigenvalues}
+\input{lecture1_body.tex}
+\clearpage
+\part{Finite element errors, fluxes, and transmission regularity}
+\input{lecture2_body.tex}
+\clearpage
+\part{Reading and running the FLINT certificate}
+\input{lecture3_body.tex}
+\bibliographystyle{abbrv}
+\bibliography{references}
+\end{document}

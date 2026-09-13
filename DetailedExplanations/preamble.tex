@@ -1,0 +1,30 @@
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,tabularx,array,enumitem}
+\usepackage{microtype,xurl}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,breaklines=true,
+  keepspaces=true,showstringspaces=false,frame=single,framerule=.2pt}
+\setlist{itemsep=3pt,topsep=5pt}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{exercise}[theorem]{Exercise}
+\newcommand{\R}{\mathbb R}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\Id}{\operatorname{Id}}
+\newcommand{\curl}{\operatorname{curl}}
+\newcommand{\F}{\mathcal F}
+\newcommand{\energy}[1]{\left\|#1\right\|_a}
+\DeclareRobustCommand{\code}[1]{\texttt{\detokenize{#1}}}
+\pdfstringdefDisableCommands{\def\code#1{\detokenize{#1}}}
+\input{manuscript_numbers.tex}
+\newcommand{\meq}[1]{\csname manuscript:#1\endcsname}
+\setlength{\emergencystretch}{2em}
+\hypersetup{pdfauthor={Course notes based on the torsion manuscript},
+ pdfsubject={Shape Hessians, finite element error bounds, and validated computing}}

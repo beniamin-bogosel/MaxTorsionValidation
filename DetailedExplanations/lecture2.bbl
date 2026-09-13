@@ -1,0 +1,33 @@
+\begin{thebibliography}{1}
+
+\bibitem{BogoselBucurValidated2024}
+B.~Bogosel and D.~Bucur.
+\newblock Polygonal {Faber--Krahn} inequality: local minimality via validated
+  computing, 2024.
+\newblock arXiv:2406.11575.
+
+\bibitem{Grisvard1985}
+P.~Grisvard.
+\newblock {\em Elliptic Problems in Nonsmooth Domains}, volume~24 of {\em
+  Monographs and Studies in Mathematics}.
+\newblock Pitman, Boston, 1985.
+
+\bibitem{LiLiu2018}
+Q.~Li and X.~Liu.
+\newblock Explicit finite element error estimates for nonhomogeneous {Neumann}
+  problems.
+\newblock {\em Applications of Mathematics}, 63(3):367--379, 2018.
+
+\bibitem{LiuOishi2013}
+X.~Liu and S.~Oishi.
+\newblock Verified eigenvalue evaluation for the {Laplacian} over polygonal
+  domains of arbitrary shape.
+\newblock {\em SIAM Journal on Numerical Analysis}, 51(3):1634--1654, 2013.
+
+\bibitem{Repin2008}
+S.~Repin.
+\newblock {\em A Posteriori Estimates for Partial Differential Equations},
+  volume~4 of {\em Radon Series on Computational and Applied Mathematics}.
+\newblock Walter de Gruyter, Berlin, 2008.
+
+\end{thebibliography}

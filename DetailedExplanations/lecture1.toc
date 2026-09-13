@@ -1,0 +1,9 @@
+\contentsline {section}{\numberline {1}The question and the coordinates}{2}{section.1}%
+\contentsline {section}{\numberline {2}From a shape derivative to a vertex Hessian}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}The area correction must be differentiated too}{3}{subsection.2.1}%
+\contentsline {section}{\numberline {3}Compute the local part on two triangles}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}What remains unknown in the sector integrals?}{4}{subsection.3.1}%
+\contentsline {section}{\numberline {4}Why radial and tangential coordinates reveal the spectrum}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}The explicit cancellation with area}{5}{subsection.4.1}%
+\contentsline {section}{\numberline {5}Exact zero modes and the local maximum criterion}{6}{section.5}%
+\contentsline {section}{\numberline {6}The quantities actually passed to the next lecture}{7}{section.6}%

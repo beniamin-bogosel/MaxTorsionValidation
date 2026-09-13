@@ -1,0 +1,83 @@
+\contentsline {part}{I\hspace {1em}From the shape Hessian to its eigenvalues}{3}{part.1}%
+\contentsline {section}{\numberline {1}The question and the coordinates}{3}{section.1}%
+\contentsline {section}{\numberline {2}From a shape derivative to a vertex Hessian}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}The area correction must be differentiated too}{4}{subsection.2.1}%
+\contentsline {section}{\numberline {3}Compute the local part on two triangles}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}What remains unknown in the sector integrals?}{6}{subsection.3.1}%
+\contentsline {section}{\numberline {4}Why radial and tangential coordinates reveal the spectrum}{6}{section.4}%
+\contentsline {subsection}{\numberline {4.1}The explicit cancellation with area}{6}{subsection.4.1}%
+\contentsline {section}{\numberline {5}Exact zero modes and the local maximum criterion}{7}{section.5}%
+\contentsline {section}{\numberline {6}The quantities actually passed to the next lecture}{8}{section.6}%
+\contentsline {part}{II\hspace {1em}Finite element errors, fluxes, and transmission regularity}{10}{part.2}%
+\contentsline {section}{\numberline {7}Three errors that must not be confused}{10}{section.7}%
+\contentsline {section}{\numberline {8}A residual is an error measured in the dual norm}{10}{section.8}%
+\contentsline {section}{\numberline {9}Differentiate the weak problem, not the approximate output}{11}{section.9}%
+\contentsline {section}{\numberline {10}Why the second variation admits products of errors}{12}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Could we use only material derivatives?}{12}{subsection.10.1}%
+\contentsline {section}{\numberline {11}The computed linear systems also need error bounds}{12}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Correct the centre before increasing the radius}{13}{subsection.11.1}%
+\contentsline {section}{\numberline {12}Four fluxes and the final continuous enclosure}{14}{section.12}%
+\contentsline {section}{\numberline {13}Regularity attempt: integrate the vertex-zero load by parts}{14}{section.13}%
+\contentsline {subsection}{\numberline {13.1}Why the ray densities have the right endpoint behavior}{15}{subsection.13.1}%
+\contentsline {subsection}{\numberline {13.2}The mixed-boundary ingredient, with its hypotheses visible}{16}{subsection.13.2}%
+\contentsline {section}{\numberline {14}The second derivatives: a necessary centre cancellation}{16}{section.14}%
+\contentsline {subsection}{\numberline {14.1}An explicit local lifting removes the centre values}{17}{subsection.14.1}%
+\contentsline {subsection}{\numberline {14.2}What part of the conjecture has this proved?}{17}{subsection.14.2}%
+\contentsline {part}{III\hspace {1em}Reading and running the FLINT certificate}{19}{part.3}%
+\contentsline {section}{\numberline {15}What the executable has to prove}{19}{section.15}%
+\contentsline {section}{\numberline {16}The finite element data entering one entry check}{19}{section.16}%
+\contentsline {section}{\numberline {17}Arb arithmetic: enclosures rather than rounded answers}{20}{section.17}%
+\contentsline {section}{\numberline {18}The entry verifier, function by function}{21}{section.18}%
+\contentsline {subsection}{\numberline {18.1}Reading a finite conforming mesh}{21}{subsection.18.1}%
+\contentsline {paragraph}{\code {die}.}{21}{section*.4}%
+\contentsline {paragraph}{\code {cmp_edge} and \code {cmp_tri_key}.}{21}{section*.5}%
+\contentsline {paragraph}{\code {dsu_root} and \code {dsu_join}.}{21}{section*.6}%
+\contentsline {paragraph}{\code {certify_mesh_topology}.}{21}{section*.7}%
+\contentsline {paragraph}{\code {read_ball} and \code {read_field}.}{21}{section*.8}%
+\contentsline {paragraph}{\code {assemble_triangle_geometry}.}{21}{section*.9}%
+\contentsline {subsection}{\numberline {18.2}Proving the exact regular fan and the directions}{21}{subsection.18.2}%
+\contentsline {paragraph}{\code {canonical_gid}.}{21}{section*.10}%
+\contentsline {paragraph}{\code {canonical_tri_key}.}{21}{section*.11}%
+\contentsline {paragraph}{\code {validate_regular_inputs}.}{21}{section*.12}%
+\contentsline {subsection}{\numberline {18.3}Exact element integration and coefficient bounds}{22}{subsection.18.3}%
+\contentsline {paragraph}{\code {gradient}.}{22}{section*.13}%
+\contentsline {paragraph}{\code {affine_integral}.}{22}{section*.14}%
+\contentsline {paragraph}{\code {add_affine_square}.}{22}{section*.15}%
+\contentsline {paragraph}{\code {symmetric_norm}.}{22}{section*.16}%
+\contentsline {paragraph}{\code {coefficients}.}{22}{section*.17}%
+\contentsline {paragraph}{\code {state_error}.}{23}{section*.18}%
+\contentsline {subsection}{\numberline {18.4}Residuals, reference values, and the main calculation}{23}{subsection.18.4}%
+\contentsline {paragraph}{\code {interior_residual_norm}.}{23}{section*.19}%
+\contentsline {paragraph}{\code {read_mode_reference}.}{23}{section*.20}%
+\contentsline {paragraph}{\code {main}: assertions before the triangle loop.}{23}{section*.21}%
+\contentsline {paragraph}{\code {main}: the triangle loop.}{23}{section*.22}%
+\contentsline {paragraph}{\code {main}: algebraic errors.}{23}{section*.23}%
+\contentsline {paragraph}{\code {main}: the final entry enclosure.}{24}{section*.24}%
+\contentsline {paragraph}{\code {main}: the handoff assertion.}{24}{section*.25}%
+\contentsline {section}{\numberline {19}The Fourier verifier, function by function}{24}{section.19}%
+\contentsline {paragraph}{\code {usage}.}{24}{section*.26}%
+\contentsline {paragraph}{\code {print_ball}.}{24}{section*.27}%
+\contentsline {paragraph}{\code {main}: input validation.}{24}{section*.28}%
+\contentsline {paragraph}{\code {main}: analytic symmetry information.}{24}{section*.29}%
+\contentsline {paragraph}{\code {main}: eigenvalues and sign counts.}{25}{section*.30}%
+\contentsline {section}{\numberline {20}How the rotation-based driver obtains the candidates}{25}{section.20}%
+\contentsline {subsection}{\numberline {20.1}The FreeFEM problems}{25}{subsection.20.1}%
+\contentsline {subsection}{\numberline {20.2}\code {rotation_cache.py}}{25}{subsection.20.2}%
+\contentsline {paragraph}{\code {prepare}.}{25}{section*.31}%
+\contentsline {subsection}{\numberline {20.3}\code {certificate_build.py}}{26}{subsection.20.3}%
+\contentsline {paragraph}{\code {build_verifiers}.}{26}{section*.32}%
+\contentsline {subsection}{\numberline {20.4}\code {certify_with_rotations.py}}{26}{subsection.20.4}%
+\contentsline {paragraph}{\code {run}.}{26}{section*.33}%
+\contentsline {paragraph}{\code {ball}.}{26}{section*.34}%
+\contentsline {paragraph}{\code {main}: setup and candidate phase.}{26}{section*.35}%
+\contentsline {paragraph}{\code {main}: reference and verification phase.}{26}{section*.36}%
+\contentsline {paragraph}{Reading a run's status.}{26}{section*.37}%
+\contentsline {section}{\numberline {21}Other validation utilities and their precise roles}{27}{section.21}%
+\contentsline {subsection}{\numberline {21.1}\code {residual_cert.c}}{27}{subsection.21.1}%
+\contentsline {subsection}{\numberline {21.2}\code {second_variation_cert.c}}{27}{subsection.21.2}%
+\contentsline {subsection}{\numberline {21.3}\code {majorant_cert.c}}{27}{subsection.21.3}%
+\contentsline {subsection}{\numberline {21.4}Drivers, summaries, and checks}{27}{subsection.21.4}%
+\contentsline {section}{\numberline {22}Running a certificate yourself}{28}{section.22}%
+\contentsline {section}{\numberline {23}What the archived computations establish}{28}{section.23}%
+\contentsline {subsection}{\numberline {23.1}Time and the meaning of the three-solve optimization}{29}{subsection.23.1}%
+\contentsline {subsection}{\numberline {23.2}Where the evidence is stored}{30}{subsection.23.2}%

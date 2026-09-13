@@ -1,0 +1,262 @@
+// Rotation-based P1 benchmark: one torsion and two first-vertex PDE solves.
+// Coordinates are interleaved: (x0,y0,x1,y1,...).
+// Run, for example:
+//   FreeFem++ -nw torsion_hessian_rotations.edp -n 5 -m 24
+
+load "lapack"
+include "macro_ddm.idp"
+verbosity = 0;
+cout.precision(16);
+
+macro grad(u) [dx(u),dy(u)] //
+
+int n = getARGV("-n", 5);
+int m = getARGV("-m", 16);
+assert(n >= 3 && m >= 1);
+real theta = 2*pi/n;
+
+real[int] vx(n), vy(n);
+for (int i=0; i<n; ++i) {
+  vx[i] = cos(i*theta);
+  vy[i] = sin(i*theta);
+}
+
+real[int] sx(3), sy(3);
+border fan(t=0,1; q) {
+  int qn=(q+1)%3;
+  x=(1-t)*sx[q]+t*sx[qn];
+  y=(1-t)*sy[q]+t*sy[qn];
+  label=q;
+}
+
+mesh[int] sector(n);
+mesh coarse;
+for (int i=0; i<n; ++i) {
+  int ip=(i+1)%n;
+  sx[0]=vx[i]; sy[0]=vy[i];
+  sx[1]=vx[ip]; sy[1]=vy[ip];
+  sx[2]=0; sy[2]=0;
+  int[int] one=[1,1,1];
+  sector[i]=buildmesh(fan(one));
+  coarse=coarse+sector[i];
+}
+mesh Th=trunc(coarse,1,split=m);
+
+fespace Vc(coarse,P1);
+fespace Vh(Th,P1);
+Vh u,v;
+problem torsion(u,v,solver=CG,eps=1e-13) =
+  int2d(Th)(grad(u)'*grad(v))-int2d(Th)(v)+on(0,u=0);
+torsion;
+cout << "PDE_SOLVED torsion" << endl;
+
+real J=0.5*int2d(Th)(u);
+real A=0.5*n*sin(theta);
+
+int[int] coarseVertex(n);
+for (int p=0; p<coarse.nv; ++p)
+  for (int i=0; i<n; ++i)
+    if (abs(coarse(p).x-vx[i])+abs(coarse(p).y-vy[i])<1e-8)
+      coarseVertex[i]=p;
+
+Vc phic;
+Vh phi,ux,uy;
+Vh[int] Phi(n), Ux(n), Uy(n);
+real[int] gradJ(2*n);
+
+problem materialX(ux,v,solver=CG,eps=1e-13) =
+    int2d(Th)(grad(ux)'*grad(v))
+  + int2d(Th)(grad(u)'*grad(v)*dx(phi))
+  - int2d(Th)(grad(v)'*grad(phi)*dx(u)+grad(u)'*grad(phi)*dx(v))
+  - int2d(Th)(v*dx(phi))+on(0,ux=0);
+
+problem materialY(uy,v,solver=CG,eps=1e-13) =
+    int2d(Th)(grad(uy)'*grad(v))
+  + int2d(Th)(grad(u)'*grad(v)*dy(phi))
+  - int2d(Th)(grad(v)'*grad(phi)*dy(u)+grad(u)'*grad(phi)*dy(v))
+  - int2d(Th)(v*dy(phi))+on(0,uy=0);
+
+// Solve at vertex 0=(1,0), for the Cartesian directions (1,0) and (0,1).
+phic[]=0; phic[][coarseVertex[0]]=1; phi=phic;
+materialX; cout << "PDE_SOLVED first_vertex_x" << endl;
+materialY; cout << "PDE_SOLVED first_vertex_y" << endl;
+
+// Identify each node by its integer coordinates in a refined fan sector.
+// On a shared ray, always use the sector starting at that ray. Rotating
+// backwards decreases only the sector index; no field interpolation is used.
+assert(Vh.ndof == Th.nv);
+int centerKey=n*(m+1)*(m+1);
+int[int] nodeAtKey(centerKey+1), nodeKey(Th.nv);
+nodeAtKey=-1;
+for (int p=0; p<Th.nv; ++p) {
+  int key=centerKey;
+  if (abs(Th(p).x)+abs(Th(p).y) > 1e-12) {
+    real angle=atan2(Th(p).y,Th(p).x);
+    if (angle < 0) angle+=2*pi;
+    int sectorIndex=int(angle/theta)%n;
+    int next=(sectorIndex+1)%n;
+    int a=int(m*(Th(p).x*vy[next]-Th(p).y*vx[next])/sin(theta)+0.5);
+    int b=int(m*(vx[sectorIndex]*Th(p).y-vy[sectorIndex]*Th(p).x)/sin(theta)+0.5);
+    assert(a >= 0 && b >= 0 && a+b <= m && a+b > 0);
+    if (a == 0) { sectorIndex=next; a=b; b=0; }
+    key=sectorIndex*(m+1)*(m+1)+a*(m+1)+b;
+  }
+  assert(nodeAtKey[key] == -1);
+  nodeAtKey[key]=p; nodeKey[p]=key;
+}
+int[int] previousVertex(Th.nv), rotatedVertex(Th.nv), seen(Th.nv);
+seen=0;
+real rotationDefect=0, stateRotationDefect=0;
+for (int p=0; p<Th.nv; ++p) {
+  int key=nodeKey[p];
+  if (key != centerKey)
+    key=(key+centerKey-(m+1)*(m+1))%centerKey;
+  int r=nodeAtKey[key];
+  assert(r >= 0 && r < Th.nv);
+  real xp=cos(theta)*Th(p).x+sin(theta)*Th(p).y;
+  real yp=-sin(theta)*Th(p).x+cos(theta)*Th(p).y;
+  rotationDefect=max(rotationDefect,sqrt((Th(r).x-xp)^2+(Th(r).y-yp)^2));
+  assert(rotationDefect < 1e-10);
+  assert(seen[r] == 0); seen[r]=1;
+  previousVertex[p]=r; rotatedVertex[p]=p;
+  stateRotationDefect=max(stateRotationDefect,abs(u[][p]-u[][r]));
+}
+
+// For the global Cartesian directions at vertex i:
+// U_i^x(x) = cos(i theta) U_0^x(R_{-i theta}x)
+//            -sin(i theta) U_0^y(R_{-i theta}x),
+// U_i^y(x) = sin(i theta) U_0^x(R_{-i theta}x)
+//            +cos(i theta) U_0^y(R_{-i theta}x).
+// Both the argument and the direction components must be rotated.
+for (int i=0; i<n; ++i) {
+  phic[]=0; phic[][coarseVertex[i]]=1; phi=phic;
+  Phi[i][]=phi[];
+  for (int p=0; p<Th.nv; ++p) {
+    int r=rotatedVertex[p];
+    Ux[i][][p]=cos(i*theta)*ux[][r]-sin(i*theta)*uy[][r];
+    Uy[i][][p]=sin(i*theta)*ux[][r]+cos(i*theta)*uy[][r];
+    rotatedVertex[p]=previousVertex[r];
+  }
+  if (i == 0) {
+    gradJ[0]=int2d(Th)(
+        -(0.5*(dx(u)^2+dy(u)^2)-u)*dx(phi)
+        +(grad(u)'*grad(phi))*dx(u));
+    gradJ[1]=int2d(Th)(
+        -(0.5*(dx(u)^2+dy(u)^2)-u)*dy(phi)
+        +(grad(u)'*grad(phi))*dy(u));
+  } else {
+    gradJ[2*i]=cos(i*theta)*gradJ[0]-sin(i*theta)*gradJ[1];
+    gradJ[2*i+1]=sin(i*theta)*gradJ[0]+cos(i*theta)*gradJ[1];
+  }
+}
+for (int p=0; p<Th.nv; ++p) assert(rotatedVertex[p] == p);
+cout << "ROTATION_CHECK coordinate_defect=" << rotationDefect
+     << " state_defect=" << stateRotationDefect << " cycle=PASS" << endl;
+cout << "PDE_SOLVES torsion=1 first_vertex=2 total=3" << endl;
+
+// Laurain's polygonal Frechet Hessian, in its simplified torsion form.
+real[int,int] HJ(2*n,2*n);
+HJ=0;
+// The Gram terms need just two stiffness-matrix products. All local
+// geometric terms vanish outside the two sectors touching vertex 0.
+varf energy(v,test)=int2d(Th)(grad(v)'*grad(test));
+matrix stiffness=energy(Vh,Vh);
+real[int] stiffnessUx=stiffness*ux[], stiffnessUy=stiffness*uy[];
+for (int j=0; j<n; ++j) {
+  HJ(0,2*j)=stiffnessUx'*Ux[j][];
+  HJ(0,2*j+1)=stiffnessUx'*Uy[j][];
+  HJ(1,2*j)=stiffnessUy'*Ux[j][];
+  HJ(1,2*j+1)=stiffnessUy'*Uy[j][];
+  if (j == 0 || j == 1 || j == n-1) {
+    HJ(0,2*j)+=int2d(Th)(-(grad(Phi[0])'*grad(Phi[j]))*dx(u)^2);
+    HJ(0,2*j+1)+=int2d(Th)(
+      (0.5*(dx(u)^2+dy(u)^2)+u)
+         *(dx(Phi[0])*dy(Phi[j])-dx(Phi[j])*dy(Phi[0]))
+      -(grad(Phi[0])'*grad(Phi[j]))*dx(u)*dy(u));
+    HJ(1,2*j)+=int2d(Th)(
+      (0.5*(dx(u)^2+dy(u)^2)+u)
+         *(dy(Phi[0])*dx(Phi[j])-dy(Phi[j])*dx(Phi[0]))
+      -(grad(Phi[0])'*grad(Phi[j]))*dy(u)*dx(u));
+    HJ(1,2*j+1)+=int2d(Th)(-(grad(Phi[0])'*grad(Phi[j]))*dy(u)^2);
+  }
+}
+
+// HJ(i,j) = R_{i theta} HJ(0,j-i) R_{i theta}^T.
+for (int i=1; i<n; ++i) for (int j=0; j<n; ++j) {
+  int offset=(j-i+n)%n;
+  real b00=HJ(0,2*offset), b01=HJ(0,2*offset+1);
+  real b10=HJ(1,2*offset), b11=HJ(1,2*offset+1);
+  HJ(2*i,2*j)=cos(i*theta)^2*b00
+    -cos(i*theta)*sin(i*theta)*(b01+b10)+sin(i*theta)^2*b11;
+  HJ(2*i,2*j+1)=cos(i*theta)*sin(i*theta)*(b00-b11)
+    +cos(i*theta)^2*b01-sin(i*theta)^2*b10;
+  HJ(2*i+1,2*j)=cos(i*theta)*sin(i*theta)*(b00-b11)
+    -sin(i*theta)^2*b01+cos(i*theta)^2*b10;
+  HJ(2*i+1,2*j+1)=sin(i*theta)^2*b00
+    +cos(i*theta)*sin(i*theta)*(b01+b10)+cos(i*theta)^2*b11;
+}
+
+real[int] gradA(2*n);
+real[int,int] HA(2*n,2*n);
+HA=0;
+for (int i=0; i<n; ++i) {
+  int im=(i+n-1)%n, ip=(i+1)%n;
+  gradA[2*i]=0.5*(vy[ip]-vy[im]);
+  gradA[2*i+1]=0.5*(vx[im]-vx[ip]);
+  HA(2*i,2*ip+1)=0.5; HA(2*ip+1,2*i)=0.5;
+  HA(2*i+1,2*ip)=-0.5; HA(2*ip,2*i+1)=-0.5;
+}
+
+// Full Hessian of F=J/A^2 (no use of the criticality identity here).
+real[int,int] HF(2*n,2*n);
+real[int,int] Work(2*n,2*n);
+HF=HJ/A^2;
+Work=gradJ*gradA'; HF=HF+(-2/A^3)*Work;
+Work=gradA*gradJ'; HF=HF+(-2/A^3)*Work;
+HF=HF+(-2*J/A^3)*HA;
+Work=gradA*gradA'; HF=HF+(6*J/A^4)*Work;
+// Measure the assembled defect before the symmetric projection.
+real symmetryDefect=0;
+for (int i=0; i<2*n; ++i) for (int j=i+1; j<2*n; ++j) {
+  symmetryDefect=max(symmetryDefect,abs(HF(i,j)-HF(j,i)));
+  real hij=0.5*(HF(i,j)+HF(j,i));
+  HF(i,j)=hij; HF(j,i)=hij;
+}
+
+// First radial/tangential block row C_j=H_F(0,j) R_{j theta}.
+real[int] C00(n),C01(n),C10(n),C11(n);
+for (int j=0; j<n; ++j) {
+  real c=cos(j*theta), s=sin(j*theta);
+  C00[j]=HF(0,2*j)*c+HF(0,2*j+1)*s;
+  C01[j]=-HF(0,2*j)*s+HF(0,2*j+1)*c;
+  C10[j]=HF(1,2*j)*c+HF(1,2*j+1)*s;
+  C11[j]=-HF(1,2*j)*s+HF(1,2*j+1)*c;
+}
+
+real criticalDefect=0;
+for (int q=0; q<2*n; ++q)
+  criticalDefect=max(criticalDefect,abs(gradJ[q]-2*J/A*gradA[q]));
+
+cout << "SUMMARY n=" << n << " m=" << m << " h=" << 1.0/m
+     << " dof=" << Vh.ndof << " area=" << A << " J=" << J
+     << " critical_defect=" << criticalDefect
+     << " symmetric_defect=" << symmetryDefect << endl;
+
+// Hermitian Fourier symbols.  Their two eigenvalues make up the full spectrum.
+for (int k=0; k<n; ++k) {
+  real aa=0,dd=0,br=0,bi=0;
+  for (int j=0; j<n; ++j) {
+    real ck=cos(k*j*theta), sk=sin(k*j*theta);
+    aa += ck*C00[j];
+    dd += ck*C11[j];
+    br += ck*C01[j];
+    bi += sk*C01[j];
+  }
+  real disc=sqrt(max(0.0,(aa-dd)^2+4*(br^2+bi^2)));
+  real em=0.5*(aa+dd-disc), ep=0.5*(aa+dd+disc);
+  cout << "MODE k=" << k << " lambda_minus=" << em
+       << " lambda_plus=" << ep << " symbol_im_offdiag=" << bi << endl;
+  cout << "MODE_DATA " << k << " " << aa << " " << dd << " "
+       << br << " " << bi << endl;
+}
+

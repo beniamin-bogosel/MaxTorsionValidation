@@ -1,0 +1,4 @@
+# Floating candidate generation and optional exact symbolic checks.
+# The C verifiers use FLINT/Arb; these packages do not provide validation.
+numpy
+sympy

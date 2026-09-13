@@ -1,0 +1,29 @@
+# Local manuscript and retired work (both spellings are intentional).
+/theory/
+/Theory/
+/Unused/
+
+# Reference PDFs are supplied separately, outside the source distribution.
+/Papers/
+
+# Local assistant metadata and development environments.
+/.agents/
+/.codex/
+/.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Generated verifiers: keep the C sources, Makefile, and small test fixtures.
+/MaxTorsionValidation/flint/mode_cert
+/MaxTorsionValidation/flint/residual_cert
+/MaxTorsionValidation/flint/majorant_cert
+/MaxTorsionValidation/flint/second_variation_cert
+/MaxTorsionValidation/flint/second_lifting_cert
+*.o
+
+# Full certificate archives are a separate data distribution, preserved locally.
+/MaxTorsionValidation/results/*
+!/MaxTorsionValidation/results/README.md
+!/MaxTorsionValidation/results/extended_m64_summary.md
+!/MaxTorsionValidation/results/extended_m128_summary.md

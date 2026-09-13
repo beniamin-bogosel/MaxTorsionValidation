@@ -1,0 +1,57 @@
+\contentsline {section}{\numberline {1}What the executable has to prove}{2}{section.1}%
+\contentsline {section}{\numberline {2}The finite element data entering one entry check}{2}{section.2}%
+\contentsline {section}{\numberline {3}Arb arithmetic: enclosures rather than rounded answers}{3}{section.3}%
+\contentsline {section}{\numberline {4}The entry verifier, function by function}{4}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Reading a finite conforming mesh}{4}{subsection.4.1}%
+\contentsline {paragraph}{\code {die}.}{4}{section*.2}%
+\contentsline {paragraph}{\code {cmp_edge} and \code {cmp_tri_key}.}{4}{section*.3}%
+\contentsline {paragraph}{\code {dsu_root} and \code {dsu_join}.}{4}{section*.4}%
+\contentsline {paragraph}{\code {certify_mesh_topology}.}{4}{section*.5}%
+\contentsline {paragraph}{\code {read_ball} and \code {read_field}.}{4}{section*.6}%
+\contentsline {paragraph}{\code {assemble_triangle_geometry}.}{4}{section*.7}%
+\contentsline {subsection}{\numberline {4.2}Proving the exact regular fan and the directions}{4}{subsection.4.2}%
+\contentsline {paragraph}{\code {canonical_gid}.}{4}{section*.8}%
+\contentsline {paragraph}{\code {canonical_tri_key}.}{4}{section*.9}%
+\contentsline {paragraph}{\code {validate_regular_inputs}.}{4}{section*.10}%
+\contentsline {subsection}{\numberline {4.3}Exact element integration and coefficient bounds}{5}{subsection.4.3}%
+\contentsline {paragraph}{\code {gradient}.}{5}{section*.11}%
+\contentsline {paragraph}{\code {affine_integral}.}{5}{section*.12}%
+\contentsline {paragraph}{\code {add_affine_square}.}{5}{section*.13}%
+\contentsline {paragraph}{\code {symmetric_norm}.}{5}{section*.14}%
+\contentsline {paragraph}{\code {coefficients}.}{5}{section*.15}%
+\contentsline {paragraph}{\code {state_error}.}{6}{section*.16}%
+\contentsline {subsection}{\numberline {4.4}Residuals, reference values, and the main calculation}{6}{subsection.4.4}%
+\contentsline {paragraph}{\code {interior_residual_norm}.}{6}{section*.17}%
+\contentsline {paragraph}{\code {read_mode_reference}.}{6}{section*.18}%
+\contentsline {paragraph}{\code {main}: assertions before the triangle loop.}{6}{section*.19}%
+\contentsline {paragraph}{\code {main}: the triangle loop.}{6}{section*.20}%
+\contentsline {paragraph}{\code {main}: algebraic errors.}{6}{section*.21}%
+\contentsline {paragraph}{\code {main}: the final entry enclosure.}{7}{section*.22}%
+\contentsline {paragraph}{\code {main}: the handoff assertion.}{7}{section*.23}%
+\contentsline {section}{\numberline {5}The Fourier verifier, function by function}{7}{section.5}%
+\contentsline {paragraph}{\code {usage}.}{7}{section*.24}%
+\contentsline {paragraph}{\code {print_ball}.}{7}{section*.25}%
+\contentsline {paragraph}{\code {main}: input validation.}{7}{section*.26}%
+\contentsline {paragraph}{\code {main}: analytic symmetry information.}{7}{section*.27}%
+\contentsline {paragraph}{\code {main}: eigenvalues and sign counts.}{8}{section*.28}%
+\contentsline {section}{\numberline {6}How the rotation-based driver obtains the candidates}{8}{section.6}%
+\contentsline {subsection}{\numberline {6.1}The FreeFEM problems}{8}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}\code {rotation_cache.py}}{8}{subsection.6.2}%
+\contentsline {paragraph}{\code {prepare}.}{8}{section*.29}%
+\contentsline {subsection}{\numberline {6.3}\code {certificate_build.py}}{9}{subsection.6.3}%
+\contentsline {paragraph}{\code {build_verifiers}.}{9}{section*.30}%
+\contentsline {subsection}{\numberline {6.4}\code {certify_with_rotations.py}}{9}{subsection.6.4}%
+\contentsline {paragraph}{\code {run}.}{9}{section*.31}%
+\contentsline {paragraph}{\code {ball}.}{9}{section*.32}%
+\contentsline {paragraph}{\code {main}: setup and candidate phase.}{9}{section*.33}%
+\contentsline {paragraph}{\code {main}: reference and verification phase.}{9}{section*.34}%
+\contentsline {paragraph}{Reading a run's status.}{9}{section*.35}%
+\contentsline {section}{\numberline {7}Other validation utilities and their precise roles}{10}{section.7}%
+\contentsline {subsection}{\numberline {7.1}\code {residual_cert.c}}{10}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}\code {second_variation_cert.c}}{10}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}\code {majorant_cert.c}}{10}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Drivers, summaries, and checks}{10}{subsection.7.4}%
+\contentsline {section}{\numberline {8}Running a certificate yourself}{11}{section.8}%
+\contentsline {section}{\numberline {9}What the archived computations establish}{11}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Time and the meaning of the three-solve optimization}{12}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Where the evidence is stored}{13}{subsection.9.2}%

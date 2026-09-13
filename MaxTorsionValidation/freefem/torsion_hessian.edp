@@ -1,0 +1,308 @@
+// P1 benchmark for the polygonal Saint-Venant Hessian.
+// Coordinates are interleaved: (x0,y0,x1,y1,...).
+// Run, for example:
+//   FreeFem++ -nw torsion_hessian.edp -n 5 -m 24
+
+load "lapack"
+include "macro_ddm.idp"
+verbosity = 0;
+cout.precision(16);
+
+macro grad(u) [dx(u),dy(u)] //
+macro div2(qx,qy) (dx(qx)+dy(qy)) //
+
+int n = getARGV("-n", 5);
+int m = getARGV("-m", 16);
+int doMajorant = getARGV("-majorant", 0);
+string exportMajorant = getARGV("-export-majorant", "");
+real theta = 2*pi/n;
+
+real[int] vx(n), vy(n);
+for (int i=0; i<n; ++i) {
+  vx[i] = cos(i*theta);
+  vy[i] = sin(i*theta);
+}
+
+real[int] sx(3), sy(3);
+border fan(t=0,1; q) {
+  int qn=(q+1)%3;
+  x=(1-t)*sx[q]+t*sx[qn];
+  y=(1-t)*sy[q]+t*sy[qn];
+  label=q;
+}
+
+mesh[int] sector(n);
+mesh coarse;
+for (int i=0; i<n; ++i) {
+  int ip=(i+1)%n;
+  sx[0]=vx[i]; sy[0]=vy[i];
+  sx[1]=vx[ip]; sy[1]=vy[ip];
+  sx[2]=0; sy[2]=0;
+  int[int] one=[1,1,1];
+  sector[i]=buildmesh(fan(one));
+  coarse=coarse+sector[i];
+}
+mesh Th=trunc(coarse,1,split=m);
+
+fespace Vc(coarse,P1);
+fespace Vh(Th,P1);
+Vh u,v;
+problem torsion(u,v,solver=CG,eps=1e-13) =
+  int2d(Th)(grad(u)'*grad(v))-int2d(Th)(v)+on(0,u=0);
+torsion;
+
+real J=0.5*int2d(Th)(u);
+real A=0.5*n*sin(theta);
+
+int[int] coarseVertex(n);
+for (int p=0; p<coarse.nv; ++p)
+  for (int i=0; i<n; ++i)
+    if (abs(coarse(p).x-vx[i])+abs(coarse(p).y-vy[i])<1e-8)
+      coarseVertex[i]=p;
+
+Vc phic;
+Vh phi,ux,uy;
+Vh[int] Phi(n), Ux(n), Uy(n);
+real[int] gradJ(2*n);
+
+problem materialX(ux,v,solver=CG,eps=1e-13) =
+    int2d(Th)(grad(ux)'*grad(v))
+  + int2d(Th)(grad(u)'*grad(v)*dx(phi))
+  - int2d(Th)(grad(v)'*grad(phi)*dx(u)+grad(u)'*grad(phi)*dx(v))
+  - int2d(Th)(v*dx(phi))+on(0,ux=0);
+
+problem materialY(uy,v,solver=CG,eps=1e-13) =
+    int2d(Th)(grad(uy)'*grad(v))
+  + int2d(Th)(grad(u)'*grad(v)*dy(phi))
+  - int2d(Th)(grad(v)'*grad(phi)*dy(u)+grad(u)'*grad(phi)*dy(v))
+  - int2d(Th)(v*dy(phi))+on(0,uy=0);
+
+for (int i=0; i<n; ++i) {
+  phic[]=0;
+  phic[][coarseVertex[i]]=1;
+  phi=phic;
+  Phi[i][]=phi[];
+  materialX; Ux[i][]=ux[];
+  materialY; Uy[i][]=uy[];
+  gradJ[2*i]=int2d(Th)(
+      -(0.5*(dx(u)^2+dy(u)^2)-u)*dx(phi)
+      +(grad(u)'*grad(phi))*dx(u));
+  gradJ[2*i+1]=int2d(Th)(
+      -(0.5*(dx(u)^2+dy(u)^2)-u)*dy(phi)
+      +(grad(u)'*grad(phi))*dy(u));
+}
+
+// Optional equilibrated RT0 residual majorants.  For target t and source g,
+// minimize ||q-t|| subject to div(q)=-g.  The resulting q is H(div)-conforming.
+real deltaW=-1, divDefect=0;
+real[int] deltaUx(n),deltaUy(n);
+Vh PsiCurlW;
+Vh[int] PsiCurlX(n),PsiCurlY(n);
+if (doMajorant) {
+  fespace Rh(Th,RT0);
+  fespace Qh(Th,P0);
+  Rh [qhx,qhy],[rhx,rhy];
+  Qh pp,ss,targetx,targety,g0;
+  problem equilibrate([qhx,qhy,pp],[rhx,rhy,ss],solver=sparsesolver) =
+      int2d(Th)(qhx*rhx+qhy*rhy
+                +pp*div2(rhx,rhy)+div2(qhx,qhy)*ss)
+    - int2d(Th)(targetx*rhx+targety*rhy)
+    + int2d(Th)(g0*ss);
+
+  targetx=dx(u); targety=dy(u); g0=1;
+  equilibrate;
+  deltaW=sqrt(int2d(Th)((qhx-targetx)^2+(qhy-targety)^2));
+  divDefect=sqrt(int2d(Th)((div2(qhx,qhy)+g0)^2));
+  cout << "MAJORANT state=" << deltaW << " div_defect=" << divDefect << endl;
+
+  real[int] coeffWx(n),coeffWy(n);
+  for (int i=0; i<n; ++i) {
+    // G_x=(grad(w).grad(phi), -phi_x*w_y+w_x*phi_y), g_x=phi_x.
+    targetx=dx(Ux[i])-(dx(u)*dx(Phi[i])+dy(u)*dy(Phi[i]));
+    targety=dy(Ux[i])-(-dx(Phi[i])*dy(u)+dx(u)*dy(Phi[i]));
+    g0=dx(Phi[i]);
+    equilibrate;
+    deltaUx[i]=sqrt(int2d(Th)((qhx-targetx)^2+(qhy-targety)^2));
+    divDefect=max(divDefect,sqrt(int2d(Th)((div2(qhx,qhy)+g0)^2)));
+
+    // G_y=(-phi_y*w_x+w_y*phi_x, grad(w).grad(phi)), g_y=phi_y.
+    targetx=dx(Uy[i])-(-dy(Phi[i])*dx(u)+dy(u)*dx(Phi[i]));
+    targety=dy(Uy[i])-(dx(u)*dx(Phi[i])+dy(u)*dy(Phi[i]));
+    g0=dy(Phi[i]);
+    equilibrate;
+    deltaUy[i]=sqrt(int2d(Th)((qhx-targetx)^2+(qhy-targety)^2));
+    divDefect=max(divDefect,sqrt(int2d(Th)((div2(qhx,qhy)+g0)^2)));
+
+    // Pointwise the map grad(w) -> G_c is a scaled rotation of norm |grad(phi)|.
+    coeffWx[i]=1/sin(theta);
+    coeffWy[i]=coeffWx[i];
+    cout << "MAJORANT material_vertex=" << i
+         << " x_flux=" << deltaUx[i] << " y_flux=" << deltaUy[i]
+         << " w_coeff=" << coeffWx[i] << endl;
+  }
+  cout << "MAJORANT max_div_defect=" << divDefect << endl;
+
+  // Exactly equilibrated alternative: q=q0+curl(psi), with
+  // q0=-x/2 for torsion and q0=-phi_i e_c for a material component.
+  // Any continuous P1 psi gives a global H(div) flux and preserves div(q0).
+  Vh psiC,testC,baseX,baseY;
+  real meanPenalty=1e-12;
+  problem fitCurl(psiC,testC,solver=CG,eps=1e-13) =
+      int2d(Th)(grad(psiC)'*grad(testC)+meanPenalty*psiC*testC)
+    + int2d(Th)((baseX-targetx)*dy(testC)
+                -(baseY-targety)*dx(testC));
+
+  baseX=-x/2; baseY=-y/2; targetx=dx(u); targety=dy(u);
+  fitCurl;
+  PsiCurlW[]=psiC[];
+  real deltaWCurl=sqrt(int2d(Th)(
+      (baseX+dy(psiC)-targetx)^2+(baseY-dx(psiC)-targety)^2));
+  cout << "CURL_MAJORANT state=" << deltaWCurl << endl;
+  for (int i=0; i<n; ++i) {
+    targetx=dx(Ux[i])-(dx(u)*dx(Phi[i])+dy(u)*dy(Phi[i]));
+    targety=dy(Ux[i])-(-dx(Phi[i])*dy(u)+dx(u)*dy(Phi[i]));
+    baseX=-Phi[i]; baseY=0;
+    fitCurl;
+    PsiCurlX[i][]=psiC[];
+    real dxCurl=sqrt(int2d(Th)(
+        (baseX+dy(psiC)-targetx)^2+(baseY-dx(psiC)-targety)^2));
+
+    targetx=dx(Uy[i])-(-dy(Phi[i])*dx(u)+dy(u)*dx(Phi[i]));
+    targety=dy(Uy[i])-(dx(u)*dx(Phi[i])+dy(u)*dy(Phi[i]));
+    baseX=0; baseY=-Phi[i];
+    fitCurl;
+    PsiCurlY[i][]=psiC[];
+    real dyCurl=sqrt(int2d(Th)(
+        (baseX+dy(psiC)-targetx)^2+(baseY-dx(psiC)-targety)^2));
+    cout << "CURL_MAJORANT material_vertex=" << i
+         << " x_flux=" << dxCurl << " y_flux=" << dyCurl << endl;
+  }
+}
+
+// Laurain's polygonal Frechet Hessian, in its simplified torsion form.
+real[int,int] HJ(2*n,2*n);
+for (int i=0; i<n; ++i) for (int j=0; j<n; ++j) {
+  HJ(2*i,2*j)=int2d(Th)(grad(Ux[i])'*grad(Ux[j])
+    +(0.5*(dx(u)^2+dy(u)^2)+u)
+       *(dx(Phi[i])*dx(Phi[j])-dx(Phi[j])*dx(Phi[i]))
+    -(grad(Phi[i])'*grad(Phi[j]))*dx(u)*dx(u));
+  HJ(2*i,2*j+1)=int2d(Th)(grad(Ux[i])'*grad(Uy[j])
+    +(0.5*(dx(u)^2+dy(u)^2)+u)
+       *(dx(Phi[i])*dy(Phi[j])-dx(Phi[j])*dy(Phi[i]))
+    -(grad(Phi[i])'*grad(Phi[j]))*dx(u)*dy(u));
+  HJ(2*i+1,2*j)=int2d(Th)(grad(Uy[i])'*grad(Ux[j])
+    +(0.5*(dx(u)^2+dy(u)^2)+u)
+       *(dy(Phi[i])*dx(Phi[j])-dy(Phi[j])*dx(Phi[i]))
+    -(grad(Phi[i])'*grad(Phi[j]))*dy(u)*dx(u));
+  HJ(2*i+1,2*j+1)=int2d(Th)(grad(Uy[i])'*grad(Uy[j])
+    +(0.5*(dx(u)^2+dy(u)^2)+u)
+       *(dy(Phi[i])*dy(Phi[j])-dy(Phi[j])*dy(Phi[i]))
+    -(grad(Phi[i])'*grad(Phi[j]))*dy(u)*dy(u));
+}
+
+real[int] gradA(2*n);
+real[int,int] HA(2*n,2*n);
+HA=0;
+for (int i=0; i<n; ++i) {
+  int im=(i+n-1)%n, ip=(i+1)%n;
+  gradA[2*i]=0.5*(vy[ip]-vy[im]);
+  gradA[2*i+1]=0.5*(vx[im]-vx[ip]);
+  HA(2*i,2*ip+1)=0.5; HA(2*ip+1,2*i)=0.5;
+  HA(2*i+1,2*ip)=-0.5; HA(2*ip,2*i+1)=-0.5;
+}
+
+// Full Hessian of F=J/A^2 (no use of the criticality identity here).
+real[int,int] HF(2*n,2*n);
+real[int,int] Work(2*n,2*n);
+HF=HJ/A^2;
+Work=gradJ*gradA'; HF=HF+(-2/A^3)*Work;
+Work=gradA*gradJ'; HF=HF+(-2/A^3)*Work;
+HF=HF+(-2*J/A^3)*HA;
+Work=gradA*gradA'; HF=HF+(6*J/A^4)*Work;
+// Measure the assembled defect before the symmetric projection.
+real symmetryDefect=0;
+for (int i=0; i<2*n; ++i) for (int j=i+1; j<2*n; ++j) {
+  symmetryDefect=max(symmetryDefect,abs(HF(i,j)-HF(j,i)));
+  real hij=0.5*(HF(i,j)+HF(j,i));
+  HF(i,j)=hij; HF(j,i)=hij;
+}
+
+// First radial/tangential block row C_j=H_F(0,j) R_{j theta}.
+real[int] C00(n),C01(n),C10(n),C11(n);
+for (int j=0; j<n; ++j) {
+  real c=cos(j*theta), s=sin(j*theta);
+  C00[j]=HF(0,2*j)*c+HF(0,2*j+1)*s;
+  C01[j]=-HF(0,2*j)*s+HF(0,2*j+1)*c;
+  C10[j]=HF(1,2*j)*c+HF(1,2*j+1)*s;
+  C11[j]=-HF(1,2*j)*s+HF(1,2*j+1)*c;
+}
+
+real criticalDefect=0;
+for (int q=0; q<2*n; ++q)
+  criticalDefect=max(criticalDefect,abs(gradJ[q]-2*J/A*gradA[q]));
+
+cout << "SUMMARY n=" << n << " m=" << m << " h=" << 1.0/m
+     << " dof=" << Vh.ndof << " area=" << A << " J=" << J
+     << " critical_defect=" << criticalDefect
+     << " symmetric_defect=" << symmetryDefect << endl;
+
+// Hermitian Fourier symbols.  Their two eigenvalues make up the full spectrum.
+for (int k=0; k<n; ++k) {
+  real aa=0,dd=0,br=0,bi=0;
+  for (int j=0; j<n; ++j) {
+    real ck=cos(k*j*theta), sk=sin(k*j*theta);
+    aa += ck*C00[j];
+    dd += ck*C11[j];
+    br += ck*C01[j];
+    bi += sk*C01[j];
+  }
+  real disc=sqrt(max(0.0,(aa-dd)^2+4*(br^2+bi^2)));
+  real em=0.5*(aa+dd-disc), ep=0.5*(aa+dd+disc);
+  cout << "MODE k=" << k << " lambda_minus=" << em
+       << " lambda_plus=" << ep << " symbol_im_offdiag=" << bi << endl;
+  cout << "MODE_DATA " << k << " " << aa << " " << dd << " "
+       << br << " " << bi << endl;
+}
+
+if (doMajorant) {
+  real gradW=sqrt(int2d(Th)(dx(u)^2+dy(u)^2));
+  real umax=0, dumax=0;
+  for (int i=0; i<n; ++i) {
+    umax=max(umax,sqrt(int2d(Th)(dx(Ux[i])^2+dy(Ux[i])^2)));
+    umax=max(umax,sqrt(int2d(Th)(dx(Uy[i])^2+dy(Uy[i])^2)));
+    dumax=max(dumax,deltaUx[i]+deltaW/sin(theta));
+    dumax=max(dumax,deltaUy[i]+deltaW/sin(theta));
+  }
+  real qerr=deltaW*(2*gradW+deltaW);
+  real CF=sqrt(A)/(2.4048255576957727686*sqrt(pi));
+  real phi2=1/sin(theta)^2;
+  real gramErr=2*dumax*umax+dumax^2;
+  real geomErr=2*phi2*qerr+2*phi2*sqrt(A)*CF*deltaW;
+  real dJ=0.5*deltaW^2;
+  real hessJEntry=gramErr+geomErr;
+  real hessFEntry=hessJEntry/A^2+dJ/A^3+2*dJ*sin(theta)^2/A^4;
+  real symbolEntry=n*sqrt(2)*hessFEntry;
+  cout << "MAJORANT crude_hessJ_entry=" << hessJEntry
+       << " crude_hessF_entry=" << hessFEntry
+       << " crude_symbol_entry_radius=" << symbolEntry << endl;
+}
+
+if (doMajorant && exportMajorant != "") {
+  ofstream cert(exportMajorant);
+  cert.precision(17);
+  cert << "TORSION_MAJORANT_V1 " << n << " " << Th.nv << " " << Th.nt << endl;
+  for (int p=0; p<Th.nv; ++p)
+    cert << Th(p).x << " " << Th(p).y << endl;
+  for (int t=0; t<Th.nt; ++t)
+    cert << int(Th[t][0]) << " " << int(Th[t][1]) << " " << int(Th[t][2]) << endl;
+  for (int p=0; p<Th.nv; ++p) cert << u(Th(p).x,Th(p).y) << endl;
+  for (int p=0; p<Th.nv; ++p) cert << PsiCurlW(Th(p).x,Th(p).y) << endl;
+  for (int i=0; i<n; ++i) {
+    for (int p=0; p<Th.nv; ++p) cert << Phi[i](Th(p).x,Th(p).y) << endl;
+    for (int p=0; p<Th.nv; ++p) cert << Ux[i](Th(p).x,Th(p).y) << endl;
+    for (int p=0; p<Th.nv; ++p) cert << Uy[i](Th(p).x,Th(p).y) << endl;
+    for (int p=0; p<Th.nv; ++p) cert << PsiCurlX[i](Th(p).x,Th(p).y) << endl;
+    for (int p=0; p<Th.nv; ++p) cert << PsiCurlY[i](Th(p).x,Th(p).y) << endl;
+  }
+  cout << "MAJORANT exported=" << exportMajorant << endl;
+}

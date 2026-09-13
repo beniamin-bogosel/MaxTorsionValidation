@@ -1,0 +1,643 @@
+\section{Three errors that must not be confused}
+\label{l2:errors}
+\noindent\textbf{Aim.} Turn a finite element Hessian entry into an enclosure
+of the continuous entry. Then investigate the transmission regularity
+behind its observed quadratic convergence. A 90-minute lecture can cover
+the error identities and first-derivative regularity; the second-derivative
+argument below is suitable for a further reading session.
+
+The geometry is the same regular polygon and coarse fan as in the first
+lecture. Write $a(v,w)=\int_P\nabla v\cdot\nabla w$ and
+$\energy v=\|\nabla v\|_{L^2(P)}$. A displacement $q$ has the fan extension
+$\theta_q=\sum_jq_j\phi_j$. These are vertex displacements, not functions
+that can be chosen independently on adjacent triangles.
+Recall that $-\Delta u=1$, $u\in H^1_0(P)$, $\ell(v)=\int_Pv$,
+$J=\frac12\int_Pu$, and $\F=J/A^2$ with $A=|P|$.
+
+There are three distinct objects:
+\begin{center}
+\begin{tabular}{lll}\toprule
+object & meaning & source of the difference\\\midrule
+$u$ & continuous weak solution & ---\\
+$u_h$ & exact Galerkin solution in $V_h$ & spatial discretization\\
+$\widetilde u$ & computed coefficient vector in $V_h$ & linear-system solve\\\bottomrule
+\end{tabular}
+\end{center}
+Interval rounding is a third error, incurred while evaluating quantities
+in the proof. It is handled by enclosing each arithmetic operation.
+A small solver residual alone controls neither $u-u_h$ nor the Hessian
+error. Conversely, an a priori interpolation theorem does not control the
+rounding error in a computed residual.
+
+Each coarse triangle is split uniformly into $m^2$ fine triangles. The
+mesh has $nm^2$ triangles and $1+nm(m+1)/2$ vertices. Its boundary has
+$nm$ vertices. For fixed $n$, $h=m^{-1}$ is proportional to the maximum
+fine-element diameter. All rays are unions of element edges, and the
+coefficients obtained by differentiating the pullback are constant on each
+fine triangle. A mesh crossing a ray cannot use the same broken
+interpolation argument without additional analysis.
+The space $V_h$ consists of continuous functions that are affine on each
+fine triangle and zero on the polygon boundary. The exact Galerkin state
+is characterized by $a(u_h,v_h)=\ell(v_h)$ for every $v_h\in V_h$.
+It is a mathematical solution of a finite linear system, independently
+of how accurately a numerical solver finds its coefficients.
+
+\section{A residual is an error measured in the dual norm}
+\label{l2:residual}
+For $u$ satisfying $a(u,v)=\ell(v)$ and any conforming candidate $w$,
+\[
+ a(u-w,v)=\ell(v)-a(w,v).
+\]
+Taking the supremum over $\energy v=1$ gives an equality:
+\[
+ \energy{u-w}=\|\ell-a(w,\cdot)\|_{(H^1_0,a)^*}.
+\]
+The equality does not compute the dual norm. It identifies what a guaranteed
+majorant must bound.
+
+For torsion, let $y\in H(\operatorname{div};P)$ satisfy
+$\operatorname{div}y=-1$. Integration by parts, with the zero trace of $v$,
+gives
+\[
+ \ell(v)-a(w,v)=\int_P(y-\nabla w)\cdot\nabla v,
+ \qquad \energy{u-w}\leq\|y-\nabla w\|_{L^2(P)}.
+\]
+This is a guaranteed estimate: it is valid for every admissible $y$, not
+only the minimizer of a flux-fitting problem. It is a functional majorant
+in the sense discussed by Repin and by the guaranteed finite element
+literature \cite{Repin2008,LiuOishi2013,LiLiu2018}.
+
+A convenient exact construction is
+\begin{equation}
+ y=-x/2+\curl\psi_h,
+ \qquad \curl\psi_h=(\partial_y\psi_h,-\partial_x\psi_h),
+ \label{l2:flux0}
+\end{equation}
+where $\psi_h$ is continuous and piecewise affine. In distributions,
+$\operatorname{div}\curl\psi_h=0$. Across an element edge the normal
+component of the curl is a tangential derivative of the common trace of
+$\psi_h$, so it agrees from both sides. Thus this is a global
+$H(\operatorname{div})$ field with precisely the required divergence.
+
+The numerical code chooses $\psi_h$ by minimizing a quadratic mismatch.
+Its computed nodal values are simply admissible flux data. An inaccurate
+fit widens the bound; it does not destroy equilibration. The first part
+$-x/2$ is essential: a curl alone would have the wrong divergence.
+
+\begin{exercise}
+What happens if the flux is not exactly equilibrated?
+\end{exercise}
+\noindent\emph{Answer.} The still-valid estimate is
+$\energy{u-w}\leq\|y-\nabla w\|+C_F\|1+\operatorname{div}y\|$,
+where $\|v\|\leq C_F\energy v$. Exact equilibration removes the second term.
+
+\section{Differentiate the weak problem, not the approximate output}
+\label{l2:pullback}
+For two vertex directions, use
+$x\mapsto x+s\theta_q(x)+t\theta_r(x)$. The pulled-back coefficient matrix
+and volume density are
+\[
+ \mathbb A(s,t)=\det(I+sD\theta_q+tD\theta_r)
+ (I+sD\theta_q+tD\theta_r)^{-1}
+ (I+sD\theta_q+tD\theta_r)^{-T},
+\]
+\[
+ a_{s,t}(v,w)=\int_P\nabla v^T\mathbb A(s,t)\nabla w,
+ \qquad
+ \ell_{s,t}(v)=\int_P\det(I+sD\theta_q+tD\theta_r)v.
+\]
+Subscripts $q,r,qr$ on forms mean derivatives at $s=t=0$.
+In particular,
+\begin{align*}
+ \mathbb A_q&=(\operatorname{div}\theta_q)I-D\theta_q-D\theta_q^T,\\
+ \ell_q(v)&=\int_P(\operatorname{div}\theta_q)v,\\
+ \ell_{qr}(v)&=\int_P\big[(\operatorname{div}\theta_q)
+ (\operatorname{div}\theta_r)-\tr(D\theta_qD\theta_r)\big]v.
+\end{align*}
+Differentiating $a_{s,t}(u_{s,t},v)=\ell_{s,t}(v)$ gives
+\begin{align}
+ a(u_q,v)&=\ell_q(v)-a_q(u,v),\notag\\
+ a(u_{qr},v)&=\ell_{qr}(v)-a_q(u_r,v)-a_r(u_q,v)-a_{qr}(u,v).
+ \label{l2:exactderivatives}
+\end{align}
+All derivatives here are material derivatives on the fixed reference fan.
+They exist in $H^1_0$ by differentiability of the uniformly coercive
+solution operator; that fact alone does not give broken $H^2$ regularity.
+
+Replace the test space by $V_h$ and the state by $u_h$. The exact discrete
+first derivatives solve the resulting equations, and $z_h=u_{h,qr}$
+solves the fourth discrete equation. Define the continuous lifting by
+\begin{equation}
+ a(Z_{qr}^h,v)=\ell_{qr}(v)-a_q(u_{h,r},v)
+                    -a_r(u_{h,q},v)-a_{qr}(u_h,v).
+ \label{l2:lifting}
+\end{equation}
+Its Galerkin solution is $z_h$. The superscript $h$ on $Z_{qr}^h$ refers
+to its data; $Z_{qr}^h$ itself is not a finite element function.
+
+The following form bounds are finite maxima of matrix operator norms:
+\[
+ |a_q(v,w)|\leq C_q\energy v\energy w,\quad
+ |a_r(v,w)|\leq C_r\energy v\energy w,\quad
+ |a_{qr}(v,w)|\leq C_{qr}\energy v\energy w.
+\]
+They transfer errors between the successive equations. No smallness of
+$C_q,C_r,C_{qr}$ is assumed.
+
+\section{Why the second variation admits products of errors}
+\label{l2:identity}
+Set $e=u-u_h$, $e_q=u_q-u_{h,q}$, and $e_r=u_r-u_{h,r}$.
+Galerkin orthogonality gives the exact identity
+\begin{equation}
+ J-J_h=\tfrac12a(e,e).
+ \label{l2:energyidentity}
+\end{equation}
+It holds on nearby polygons after pullback. Differentiating twice means
+differentiating the form as well as both arguments:
+\[
+ (J-J_h)_{qr}=\tfrac12a_{qr}(e,e)+a_q(e_r,e)+a_r(e_q,e)
+                      +a(e_q,e_r)+a(e_{qr},e).
+\]
+Since $u_{h,qr}\in V_h$, orthogonality gives
+$a(e_{qr},e)=a(u_{qr},e)$. Insert the second equation in
+\eqref{l2:exactderivatives}, tested with $e$, and combine the terms.
+The result is
+\begin{equation}
+ (J-J_h)_{qr}=a(e_q,e_r)-\tfrac12a_{qr}(e,e)
+                         +a(Z_{qr}^h-z_h,e).
+ \label{l2:productidentity}
+\end{equation}
+The exact second derivative has disappeared. If
+\[
+ \energy e\leq\delta_0,\quad \energy{e_q}\leq\delta_q,
+ \quad\energy{e_r}\leq\delta_r,\quad
+ \energy{Z_{qr}^h-z_h}\leq\eta_{qr},
+\]
+then
+\begin{equation}
+ |(J-J_h)_{qr}|\leq
+ \delta_q\delta_r+\tfrac12C_{qr}\delta_0^2+\delta_0\eta_{qr}.
+ \label{l2:productbound}
+\end{equation}
+This is manuscript equation~\meq{eq:second-residual-bound}.
+It is valid on each fixed mesh without an asymptotic regularity assumption.
+
+\subsection{Could we use only material derivatives?}
+Yes. The weak equation already gives
+$a(u_q,u_r)=\ell_q(u_r)-a_q(u,u_r)$. It uses no second derivative.
+But replacing $u$ by $u_h$ changes the load, so it does not automatically
+remove the terms linear in the state error. Direct propagation of
+$O(h)$ energy bounds through the Hessian generally leaves an $O(h)$ bound.
+The Bogosel--Bucur analysis already exploits a quadratic interpolation
+product for material derivatives; the leading first-order contribution
+comes from other data errors, not a failure of Galerkin orthogonality
+\cite[Section 3.1]{BogoselBucurValidated2024}.
+
+In \eqref{l2:productbound}, all four errors of order $h$ instead produce
+an order-$h^2$ bound. This improvement is due to the cancellation and
+lifting. Equilibrated fluxes are a way to enclose the energy errors;
+they are not, by themselves, a theorem of quadratic convergence.
+
+\section{The computed linear systems also need error bounds}
+\label{l2:algebraic}
+Let $Kx_*=f$ be the exact interior-node system, with $K$ symmetric positive
+definite. A computed vector $x$ has residual $f-Kx$. If
+$\lambda_{\min}(K)\geq\underline\alpha>0$, then
+\[
+ \|x-x_*\|_K^2=(f-Kx)^TK^{-1}(f-Kx)
+ \leq \frac{\|f-Kx\|_2^2}{\underline\alpha}.
+\]
+The Euclidean norm of the residual is not the energy norm of the error;
+the factor $1/\sqrt{\underline\alpha}$ supplies that conversion.
+
+For the circumradius-one polygon, domain monotonicity and the square give
+$\lambda_1(P)\geq\pi^2/2$. On one triangle,
+\[
+ M_T=\frac{|T|}{12}
+ \begin{pmatrix}2&1&1\\1&2&1\\1&1&2\end{pmatrix}
+ \succeq\frac{|T|}{12}I.
+\]
+After assembly and restriction to interior nodes,
+\begin{equation}
+ \underline\alpha=
+ \frac{\pi^2}{24}\min_{i\text{ interior}}\sum_{T\ni i}|T|
+ \quad\hbox{is a valid lower bound for }\lambda_{\min}(K).
+ \label{l2:coercivity}
+\end{equation}
+This is explicit and possibly conservative. It contains no numerically
+estimated inverse and no uncertified eigenvalue computation.
+
+Define the four residual functionals of the computed candidates:
+\begin{align*}
+ \rho_0(v)&=\ell(v)-a(\widetilde u,v),\\
+ \rho_q(v)&=\ell_q(v)-a_q(\widetilde u,v)-a(\widetilde u_q,v),\\
+ \rho_r(v)&=\ell_r(v)-a_r(\widetilde u,v)-a(\widetilde u_r,v),\\
+ \rho_z(v)&=\ell_{qr}(v)-a_q(\widetilde u_r,v)
+ -a_r(\widetilde u_q,v)-a_{qr}(\widetilde u,v)-a(\widetilde z,v).
+\end{align*}
+Their vectors are obtained by evaluating them on each interior basis
+function $\varphi_i$: $(r_\rho)_i=\rho(\varphi_i)$. For example,
+$r_{\rho_0}=f-K\widetilde x$.
+
+Because later loads contain earlier unknowns, the transfer is
+\begin{align*}
+ \epsilon_0&=\|r_{\rho_0}\|_2/\sqrt{\underline\alpha},\\
+ \epsilon_q&=\|r_{\rho_q}\|_2/\sqrt{\underline\alpha}+C_q\epsilon_0,\\
+ \epsilon_r&=\|r_{\rho_r}\|_2/\sqrt{\underline\alpha}+C_r\epsilon_0.
+\end{align*}
+These bound the differences between exact discrete solutions and their
+candidates. Boundary coefficients are set to exactly zero before any
+residual is assembled. A large penalty imposed by a floating-point
+solver is not a substitute for this Dirichlet restriction.
+
+\subsection{Correct the centre before increasing the radius}
+The energy centre
+$\widetilde J_{\rm corr}=\ell(\widetilde u)-a(\widetilde u,\widetilde u)/2$
+satisfies $J_h-\widetilde J_{\rm corr}=\energy{u_h-\widetilde u}^2/2$.
+For the mixed derivative use
+\begin{align*}
+ \widetilde C_{\rm corr}={}&\ell_{qr}(\widetilde u)
+ +\ell_q(\widetilde u_r)-\tfrac12a_{qr}(\widetilde u,\widetilde u)
+ -a_q(\widetilde u,\widetilde u_r)\\
+ &+\rho_r(\widetilde u_q)+\rho_0(\widetilde z).
+\end{align*}
+Expanding about the exact discrete fields and substituting the residual
+identities gives
+\begin{align*}
+ J_{h,qr}-\widetilde C_{\rm corr}
+ ={}&\rho_z(u_h-\widetilde u)
+ -\tfrac12a_{qr}(u_h-\widetilde u,u_h-\widetilde u)\\
+ &+a(u_{h,q}-\widetilde u_q,u_{h,r}-\widetilde u_r).
+\end{align*}
+Every first-order material-solve term has cancelled. Consequently
+\[
+ |J_{h,qr}-\widetilde C_{\rm corr}|\leq E_{\rm alg}
+ :=\frac{\|r_{\rho_z}\|_2}{\sqrt{\underline\alpha}}\epsilon_0
+   +\tfrac12C_{qr}\epsilon_0^2+\epsilon_q\epsilon_r.
+\]
+The lifting solve error need not be given another separate name: its
+residual appears directly in this expression.
+
+\section{Four fluxes and the final continuous enclosure}
+\label{l2:assembly}
+Choose four continuous affine potentials. The state flux is
+\eqref{l2:flux0}; the first-derivative flux is
+$-\theta_q+\curl\psi_{q,h}$, with divergence $-\operatorname{div}\theta_q$.
+For the second lifting use
+\[
+ -(\operatorname{div}\theta_q)\theta_r+D\theta_q\theta_r
+                                  +\curl\psi_{z,h}.
+\]
+Indeed,
+\[
+ \operatorname{div}\big((\operatorname{div}\theta_q)\theta_r
+                 -D\theta_q\theta_r\big)
+ =(\operatorname{div}\theta_q)(\operatorname{div}\theta_r)
+                       -\tr(D\theta_qD\theta_r).
+\]
+Its normal trace is continuous across fan edges: the gradient jump of a
+continuous affine field is a vector tensor the edge normal, and the two
+normal jump contributions cancel. This is a distributional identity,
+not only a trianglewise identity.
+
+The four mismatch norms are
+\begin{align*}
+ \Phi_0&=\|-x/2+\curl\psi_{0,h}-\nabla\widetilde u\|,\\
+ \Phi_q&=\|-\theta_q+\curl\psi_{q,h}-\nabla\widetilde u_q
+                                     -\mathbb A_q\nabla\widetilde u\|,\\
+ \Phi_r&=\|-\theta_r+\curl\psi_{r,h}-\nabla\widetilde u_r
+                                     -\mathbb A_r\nabla\widetilde u\|,\\
+ \Phi_z&=\|-(\operatorname{div}\theta_q)\theta_r+D\theta_q\theta_r
+                 +\curl\psi_{z,h}-\nabla\widetilde z\\
+ &\hspace{23mm}-\mathbb A_q\nabla\widetilde u_r
+                 -\mathbb A_r\nabla\widetilde u_q
+                 -\mathbb A_{qr}\nabla\widetilde u\|.
+\end{align*}
+All unmarked norms in these formulas are $L^2(P)$ norms of vector fields.
+Residual bounds, load-error transfer, and best approximation give
+\begin{align*}
+ \widehat\delta_0&=\Phi_0,\\
+ \widehat\delta_q&=\Phi_q+C_q\Phi_0+\epsilon_q,
+ &\widehat\delta_r&=\Phi_r+C_r\Phi_0+\epsilon_r,\\
+ \widehat\eta_{qr}&=\Phi_z+C_q\epsilon_r+C_r\epsilon_q+C_{qr}\epsilon_0.
+\end{align*}
+For example, $\Phi_0$ bounds the error to $\widetilde u$; best
+approximation then also bounds the error to $u_h$. In the lifting bound,
+$\widetilde z\in V_h$ can replace $z_h$ before best approximation is used.
+This explains why an extra lifting algebraic error is not added there.
+
+For a nonzero Fourier pairing, $A_q=A_r=0$. Define
+\[
+ B_J=\widehat\delta_q\widehat\delta_r+\tfrac12C_{qr}\widehat\delta_0^2
+                           +\widehat\delta_0\widehat\eta_{qr}.
+\]
+The entry centre and radius are
+\begin{align}
+ \widetilde F_{qr}&=\frac{\widetilde C_{\rm corr}}{A^2}
+                     -\frac{2\widetilde J_{\rm corr}A_{qr}}{A^3},\notag\\
+ R_F&=\frac{B_J+E_{\rm alg}}{A^2}
+       +\frac{|A_{qr}|}{A^3}(\widehat\delta_0^2+\epsilon_0^2),\notag\\
+ |D^2\F[q,r]-\widetilde F_{qr}|&\leq R_F.
+ \label{l2:finalradius}
+\end{align}
+Every term has a job: $B_J$ is the continuous discretization error,
+$E_{\rm alg}$ is the error in the discrete centre, and the last term
+accounts for the area-normalization coefficient multiplying $J$.
+If the evaluated centre is an interval, its arithmetic radius is retained.
+
+\section{Regularity attempt: integrate the vertex-zero load by parts}
+\label{l2:rayproof}
+This section develops the proposed Bogosel--Bucur route. We will prove
+broken regularity of first and second material derivatives \emph{at the
+regular polygon}, using the standard polygonal mixed-boundary regularity
+theorem stated below. A separate final paragraph explains why this does
+not yet prove the manuscript's stronger uniform-neighborhood formulation.
+
+For $c=1,2$, put the weak equation for $U_0^c$ in the form
+\begin{align}
+ a(U_0^c,v)&=\int_P G_{0,c}(u)\cdot\nabla v
+                              +\int_P(\partial_c\phi_0)v,\notag\\
+ G_{0,c}(u)&=-(\partial_c\phi_0)\nabla u
+            +(\partial_cu)\nabla\phi_0
+            +(\nabla\phi_0\cdot\nabla u)e_c.
+ \label{l2:G}
+\end{align}
+On a sector the hat gradient is constant. Since $\Delta u=-1$,
+\[
+ \operatorname{div}G_{0,c}(u)
+ =\partial_c\phi_0+2\nabla\phi_0\cdot\nabla\partial_cu.
+\]
+The volume load after integration by parts is therefore
+\begin{equation}
+ -2\nabla\phi_0\cdot\nabla\partial_cu\in L^2(P).
+ \label{l2:regularload}
+\end{equation}
+It is supported on $T_{-1}\cup T_0$. The term
+$\partial_c\phi_0$ has cancelled; keeping it would give an incorrect
+strong formulation.
+
+Let $S_j=\{r a_j:0<r<1\}$ and let
+$\nu_j=(-\sin(j\vartheta),\cos(j\vartheta))$ point from $T_{j-1}$ into
+$T_j$. The trace convention is $[w]_j=w|_{T_j}-w|_{T_{j-1}}$.
+The contribution of the two boundary integrals is
+$-[G_{0,c}(u)]_j\cdot\nu_j$.
+Continuity of $\phi_0$ implies $[\nabla\phi_0]_j$ is normal to $S_j$.
+Because $u\in H^2(P)$, its gradient has a common trace there. Substituting
+into \eqref{l2:G} gives the especially simple ray density
+\begin{equation}
+ -[G_{0,c}(u)]_j\cdot\nu_j
+     =-([\nabla\phi_0]_j\cdot\nu_j)\,\partial_cu|_{S_j}.
+ \label{l2:raydensity}
+\end{equation}
+Only $S_{-1},S_0,S_1$ occur. Their coefficients are
+\[
+ [\nabla\phi_0]_0\cdot\nu_0=-2\cot\vartheta,
+ \qquad
+ [\nabla\phi_0]_{\pm1}\cdot\nu_{\pm1}=\frac1{\sin\vartheta}.
+\]
+Thus the complete distributional equation is
+\begin{equation}
+ -\Delta U_0^c=-2\nabla\phi_0\cdot\nabla\partial_cu
+ +2\cot\vartheta\,(\partial_cu)|_{S_0}\delta_{S_0}
+ -\frac{(\partial_cu)|_{S_1}\delta_{S_1}
+        +(\partial_cu)|_{S_{-1}}\delta_{S_{-1}}}{\sin\vartheta}.
+ \label{l2:decomposition}
+\end{equation}
+Here $g\delta_S$ means the functional $v\mapsto\int_Sgv\,ds$.
+No point masses occur: we integrated bounded piecewise coefficients times
+$H^1$ gradient fields once, and the singular terms are edge measures.
+
+\subsection{Why the ray densities have the right endpoint behavior}
+For fixed $n$, convex-polygon Dirichlet regularity gives
+\[
+ u\in H^{2+\sigma}(P),\qquad
+ 0<\sigma<\min\left\{\frac12,\frac{\pi}{\pi-2\pi/n}-1\right\},
+\]
+after decreasing $\sigma$ if necessary. Possible resonant logarithmic
+corner terms are harmless below this strict exponent threshold.
+In particular $\nabla u$ is continuous up to each corner. Its tangential
+derivatives on the two adjacent Dirichlet edges are zero; the tangents
+are independent, so $\nabla u(a_j)=0$. At the centre, rotational symmetry
+implies $\nabla u(0)=0$.
+
+On $S_j$, reflection gives zero normal derivative, hence
+\[
+ \nabla u(r a_j)=a_j\,\partial_ru(r,0).
+\]
+Thus the densities in \eqref{l2:decomposition} are precisely rotated
+multiples of the same radial derivative. The trace theorem gives
+$H^{1/2+\sigma}$ regularity on each ray, and the values at $r=0,1$ vanish.
+Their extensions by zero across the centre belong to the same fractional
+space for sufficiently small $\sigma>0$. Endpoint values here are justified
+by the extra positive regularity; bare $H^{1/2}$ membership would not by
+itself justify a pointwise endpoint argument.
+
+\subsection{The mixed-boundary ingredient, with its hypotheses visible}
+\begin{lemma}[A ray load with vanishing endpoints]
+\label{l2:raylemma}
+Fix a regular polygon. Let $g\in H^{1/2+\sigma}(0,1)$ with $g(0)=g(1)=0$
+and $\sigma>0$ sufficiently small. The solution $W\in H^1_0(P)$ of
+$a(W,v)=\int_{S_0}gv$ belongs to $H^{2+\sigma'}$ on each side of the ray
+and on every fan sector, for some $\sigma'>0$ that may be smaller than
+$\sigma$. The same assertion holds for any rotated ray.
+\end{lemma}
+\begin{proof}
+The line load is continuous on $H^1_0(P)$ by the trace theorem, so
+Lax--Milgram gives $W$. Its data and domain are invariant under reflection
+across the line through $S_0$, hence $W$ is even. Restrict to the upper
+half-polygon. The boundary conditions are Dirichlet zero on the polygon
+boundary and outward Neumann data $g/2$ on the positive part of the cut,
+zero on its negative part. The factor $1/2$ follows by doubling the weak
+integral over the half-polygon.
+
+Apply the polygonal Dirichlet--Neumann shift theorem of Grisvard
+\cite[Theorem 4.4.3.7 and Corollary 4.4.3.8]{Grisvard1985}.
+Its use here is the same as the
+ray decomposition in \cite[Section 3]{BogoselBucurValidated2024}; the local
+reviewed PDF has Lemma 3.1 and Remark 3.2. The hypotheses can be checked
+geometrically. At a vertex on the cut the mixed angle is
+$(\pi-\vartheta)/2<\pi/2$, whose first mixed corner exponent is
+$\pi/(\pi-\vartheta)>1$. Other Dirichlet angles are less than $\pi$.
+When $n$ is odd, the negative cut meets the opposite edge at a right angle;
+the Neumann data are identically zero near that point, and even reflection
+reduces the local problem to a straight Dirichlet boundary. There is no
+nonpolynomial corner singularity of exponent at most one there.
+The Neumann datum extends through the centre in $H^{1/2+\sigma}$,
+and its zero value at the positive endpoint supplies the compatibility
+with the zero Dirichlet data. These facts give a positive shift above
+$H^2$, after shrinking the exponent. Reflection back gives the assertion.
+Away from the loaded positive ray, the equation is locally harmonic across
+the artificial negative cut, so no extra interface is introduced.
+\end{proof}
+
+\begin{proposition}[First material derivatives at the regular polygon]
+\label{l2:firstregular}
+For every fixed $n\geq3$, the first vertex material derivatives are in
+$H^{2+\sigma}$ on each coarse fan triangle for some $\sigma>0$ depending
+on $n$. Their gradients have a common value at the centre and vanish at
+the polygon vertices.
+\end{proposition}
+\begin{proof}
+Split \eqref{l2:decomposition} into its volume solution and three ray
+solutions. The volume load is piecewise $H^\sigma$, hence globally
+$H^\sigma$ after choosing $\sigma<1/2$; multiplication by a sector
+indicator preserves $H^\sigma$ in this range. The convex Dirichlet
+polygonal shift theorem gives $H^{2+\sigma}$ for its solution, with a
+possibly smaller positive exponent. Lemma~\ref{l2:raylemma} handles the
+three ray solutions. Rotation and linear combination handle all vertices
+and all directions $q$.
+
+The one-sided gradients are continuous to sector endpoints by Sobolev
+embedding. Across a ray, the tangential gradient agrees, because the
+function has one common trace. The normal-gradient jump equals the line
+density, up to the chosen orientation. That density vanishes at both
+endpoints, so the gradients agree at the centre and at each outer endpoint.
+At a polygon vertex the common gradient is orthogonal to both adjacent
+boundary tangents, hence is zero. At the centre the common gradient need
+not be zero; symmetry of the state does not imply the same symmetry for
+a single-vertex material derivative.
+\end{proof}
+
+\section{The second derivatives: a necessary centre cancellation}
+\label{l2:secondregular}
+The first-derivative proof is not automatically a proof for $u_{qr}$.
+Nevertheless it supplies the extra regularity needed to continue. On each
+sector write its weak equation as
+\[
+ a(u_{qr},v)=\int_P d_{qr}v+\int_P G_{qr}\cdot\nabla v,
+\]
+where, for this regularity calculation only,
+\begin{align*}
+ d_{qr}&=(\operatorname{div}\theta_q)(\operatorname{div}\theta_r)
+                               -\tr(D\theta_qD\theta_r),\\
+ G_{qr}&=-\mathbb A_q\nabla u_r-\mathbb A_r\nabla u_q
+                                  -\mathbb A_{qr}\nabla u.
+\end{align*}
+These two names display the volume and flux parts of one distribution;
+they do not introduce any new PDE solves. Sectorwise integration by parts
+produces $d_{qr}-\operatorname{div}G_{qr}\in L^2$ and ray densities
+$-[G_{qr}]_j\cdot\nu_j\in H^{1/2+\sigma}(S_j)$.
+All outer endpoint values vanish by Proposition~\ref{l2:firstregular}.
+The centre values may not vanish because $\nabla u_q(0)$ and
+$\nabla u_r(0)$ may be nonzero.
+
+This matters. A constant load on a ray ending at an interior point can
+produce an $r\log r$ corner term; its second derivatives are not square
+integrable near that endpoint. Splitting a compatible collection of rays
+into unrelated single-ray problems can therefore destroy the regularity
+one is trying to prove.
+
+\subsection{An explicit local lifting removes the centre values}
+Choose a smooth cutoff $\chi$ supported in an interior disk around the
+centre, equal to one in a smaller disk. Subtract from $u_{qr}$ the known
+piecewise smooth function
+\begin{equation}
+ \chi(x)\bigl(\theta_q(x)\cdot\nabla u_r(0)
+                  +\theta_r(x)\cdot\nabla u_q(0)\bigr).
+ \label{l2:centerlifting}
+\end{equation}
+It belongs to $H^1_0(P)$ and is $H^2$ on each fan sector. Its purpose is
+local regularity analysis; it is not the numerical second lifting $Z_{qr}^h$.
+The centre gradients are well defined by the first-derivative proposition.
+
+For any constant vector $b$, the following identity holds in distributions:
+\begin{equation}
+ \operatorname{div}(-\mathbb A_q b)
+     =\Delta(\theta_q\cdot b).
+ \label{l2:centeridentity}
+\end{equation}
+Indeed,
+$-\mathbb A_qb=D\theta_qb+D\theta_q^Tb-(\operatorname{div}\theta_q)b$.
+The divergences of the first and last terms cancel by commutation of
+weak derivatives; the middle term is $\nabla(\theta_q\cdot b)$.
+Near the centre, where $\chi=1$, identity~\eqref{l2:centeridentity} shows
+that \eqref{l2:centerlifting} has exactly the ray-jump contributions of
+$-\mathbb A_q\nabla u_r(0)-\mathbb A_r\nabla u_q(0)$.
+Also $\nabla u(0)=0$, so the $\mathbb A_{qr}$ term contributes no centre
+value. Subtracting the lifting therefore makes every remaining ray
+density vanish at the centre.
+
+Differentiating the cutoff introduces only piecewise smooth volume terms
+and ray terms supported away from the centre and the outer vertices.
+The resulting volume source is still $L^2$; each ray density is still
+$H^{1/2+\sigma}$ and now vanishes at \emph{both} endpoints. The regular
+volume problem and the isolated ray problems can now be treated separately.
+
+\begin{proposition}[Second material derivatives at the regular polygon]
+\label{l2:secondproposition}
+Under the polygonal shift theorem used in Lemma~\ref{l2:raylemma}, the
+exact second material derivative $u_{qr}$ belongs to $H^2(T_j)$ for every
+fan triangle, every fixed regular polygon, and every pair of vertex
+directions $q,r$.
+\end{proposition}
+\begin{proof}
+After subtracting \eqref{l2:centerlifting}, solve the $L^2$ volume problem
+with zero Dirichlet data. Its solution is globally $H^2$ by convexity.
+For each remaining ray load apply Lemma~\ref{l2:raylemma}. The sum of
+these solutions and the subtracted lifting satisfies the weak equation
+for $u_{qr}$, and uniqueness identifies it with $u_{qr}$. Every summand
+is $H^2$ on each fan triangle. There are finitely many rays and finitely
+many vertex coordinates, so the argument applies to all mixed directions.
+\end{proof}
+
+\subsection{What part of the conjecture has this proved?}
+The argument proves the qualitative broken regularity of the state,
+first derivatives, and second derivatives \emph{at $P_n$}, for fixed $n$.
+It also gives uniformity over bounded vertex directions there, by finite
+dimensionality and bilinearity. Constants may depend on $n$; the corner
+exponent tends to one as $n$ grows.
+
+The manuscript's Conjecture~\meq{conj:h2} asks for uniform broken
+regularity for the parameterized family in a neighborhood. That stronger
+statement does not follow just by rotating and reflecting the regular
+polygon: the perturbed polygons no longer have its reflection symmetries.
+A proof still needs stability of the relevant transmission estimates
+under these geometric perturbations, or a parameter-dependent corner
+expansion with uniform control. These notes do not claim that step is
+proved, and do not change the manuscript's conjecture or its theorem.
+
+For the Hessian rate \emph{at the regular polygon}, the regularity just
+proved is sufficient. Broken interpolation and the differentiated
+Galerkin equations give $\delta_0,\delta_q,\delta_r=O(h)$. Moreover,
+subtracting the exact second-derivative equation from \eqref{l2:lifting}
+gives
+\[
+ \energy{Z_{qr}^h-u_{qr}}
+ \leq C_q\delta_r+C_r\delta_q+C_{qr}\delta_0=O(h).
+\]
+Approximate the fixed function $u_{qr}$ by its broken interpolant and use
+best approximation for $Z_{qr}^h$ to obtain $\eta_{qr}=O(h)$.
+Equation~\eqref{l2:productbound} then gives
+$D^2J(P_n)-D^2J_h(P_n)=O(h^2)$.
+The energy identity and its first derivative also bound $J-J_h$ and
+$D(J-J_h)$ by $O(h^2)$, so differentiating $A^{-2}$ gives the same rate
+for the normalized Hessian. This is a statement about exact Galerkin
+quantities, not yet about the computed radius in \eqref{l2:finalradius}.
+
+\subsection*{Exercises and proof checkpoints}
+\begin{exercise}
+For $c=2$, simplify the three ray terms in \eqref{l2:decomposition} using
+$\nabla u(r a_j)=a_j\partial_ru(r,0)$.
+\end{exercise}
+\noindent\emph{Answer.} The $S_0$ term is zero. The terms on $S_1,S_{-1}$
+are respectively $-\partial_ru\,\delta_{S_1}$ and
+$+\partial_ru\,\delta_{S_{-1}}$, with the traces understood on their rays.
+For $c=1$ the weights are $2\cot\vartheta,-\cot\vartheta,-\cot\vartheta$.
+
+\begin{exercise}
+Why is pointwise zero at an endpoint not an argument for a general
+$H^{1/2}$ function?
+\end{exercise}
+\noindent\emph{Answer.} Endpoint evaluation is not a continuous trace
+at the borderline exponent. The positive extra regularity above, or an
+explicit weighted endpoint condition, must be used.
+
+\begin{exercise}
+Which extra facts are needed to conclude that the \emph{computed}
+$R_F$ is $O(h^2)$?
+\end{exercise}
+\noindent\emph{Answer.} The four chosen flux mismatches and the transferred
+algebraic bounds must have compatible orders, so that $B_J$, $E_{\rm alg}$,
+and the normalization remainder are $O(h^2)$. A fixed solver tolerance or
+fixed precision can eventually prevent that asymptotic behavior even when
+the exact Galerkin Hessian converges quadratically.
