@@ -14,6 +14,17 @@ to the local or separately distributed data bundle. A source-only Git clone
 does not contain those targets. No public archive URL or DOI has been
 assigned in this repository.
 
+## Regenerate a certificate without downloading archives
+
+The source distribution is sufficient to generate new candidates and run
+the complete certification chain. Start with the pentagon at `m=32` using
+[the small-case command](../docs/REPRODUCING_SECTION_8.md#start-with-one-small-certificate).
+The same guide gives commands for every reported table. Each run creates
+its own candidate fields, residual bounds, entry-containment logs and final
+sign certificate. The large historical archives are needed only to replay
+the particular candidates used in the reported runs; they are not needed
+to regenerate a certificate from the source code.
+
 ## Archives underlying Section 8
 
 Paths below are relative to this directory. Preserve the complete named
@@ -47,7 +58,7 @@ full entry replay at the original center and radius is recorded in
 `validity_review_20260909/n21-replay-provenance.json` and
 `entry-replay-n21-k6-rr.log`. See [the review](../../REVIEW.md).
 
-## Preparing a separate data bundle
+## Optional distribution of historical data
 
 Copy or archive the selected directories without editing their contents.
 Keep the relative paths in this guide so the summary links remain useful

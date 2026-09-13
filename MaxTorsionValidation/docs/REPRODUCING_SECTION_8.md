@@ -62,6 +62,31 @@ make -C MaxTorsionValidation/flint test
 This suite checks symbolic identities, small validated examples, and rejected
 invalid inputs; it does not regenerate the Section 8 certificate tables.
 
+## Start with one small certificate
+
+No historical candidate archive is needed to regenerate a proof from the
+source code. After installing the dependencies above, the optimized driver
+can generate and certify the pentagon on the `m=32` mesh:
+
+```sh
+python3 MaxTorsionValidation/freefem/certify_with_rotations.py \
+  5 5 --m 32 --jobs 2 --cpu-cores 2 --entry-centers \
+  --flux-eps 1e-13 --stop-on-failure \
+  --archive /tmp/torsion-pentagon
+```
+
+The archive directory must be new. Success requires eight real entry
+certificates, six negative Hessian eigenvalues, and four exact similarity
+zeros. Check `n5/RESULT.json` for `CERTIFIED` and consult the entry logs and
+`n5/mode_cert.log`. This command computes the PDE candidates, proves their
+error bounds, and generates its own compressed inputs and audit records.
+It does not require the multi-gigabyte historical data collection.
+
+Regeneration can produce different floating-point candidates and radii;
+the new certificate establishes its own enclosures. Replaying the exact
+historical inputs is a separate task requiring those input files. The
+following batches regenerate all reported table cases.
+
 ## Regenerate candidates and certify all table cases
 
 The following four batches cover every row. Create the parent directory once:
