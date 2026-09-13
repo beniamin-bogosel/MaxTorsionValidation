@@ -31,3 +31,6 @@ manifests, candidates, logs, and checksums retain their original contents,
 including recorded `code/` paths. Historical checksum files describe their
 original snapshots and are not checksums of the reorganized current source.
 No solver, certificate, or mathematical test was rerun for this change.
+
+The subsequent [final package recheck](PACKAGE_RECHECK.md) records the
+builds, numerical checks, and archive audits performed after reorganization.

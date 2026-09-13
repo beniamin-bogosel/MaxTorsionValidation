@@ -26,6 +26,8 @@ bounds and a second-variation identity.
 | [Three-solve rotation code](MaxTorsionValidation/freefem/ROTATIONS.md) | Optimized floating Hessian and rotation-cached certificate candidates |
 | [Symbolic checks](MaxTorsionValidation/symbolic/README.md) | Exact algebraic regression checks |
 | [Review](REVIEW.md) | Corrections, validation evidence, and remaining limits |
+| [Final package recheck](PACKAGE_RECHECK.md) | Current build, source-package, and archive checks |
+| [Three lectures](DetailedExplanations/README.md) | LaTeX and PDF explanations of the Hessian, error bounds, and certification code |
 | [Results and archives](MaxTorsionValidation/results/README.md) | Compact summaries in Git; complete archives distributed separately |
 | [Original supplied programs](Code/README.md) | Researcher's FreeFEM prototypes, preserved separately |
 | [Prompt history](PromptHistory.md) | Available conversation and recorded model versions |

@@ -4,17 +4,17 @@
   "files": [
     {
       "path": "theory/torsional_rigidity_regular_polygon.tex",
-      "sha256": "43806f67e1336eb310b4d2cd6305a6fb97ffda0de015bfdd38590ad25fe68ac4",
+      "sha256": "6a8db02676de8edb490171019af28cde71595b5df0429d01c70614ac727456ca",
       "functions": []
     },
     {
       "path": "theory/torsional_rigidity_regular_polygon.aux",
-      "sha256": "8d35f61022cdc1a8714675bd594de9cb2bee40cab4bde0403e1769004ac00e47",
+      "sha256": "c5d669ac94ec83d31ff17b2c81cd044628718c198381ad86668a6a808d35e5bb",
       "functions": []
     },
     {
       "path": "theory/torsional_rigidity_regular_polygon.bib",
-      "sha256": "f68cbef1eaf33bd9901b0ab32c6374dfc8a8aafa06fa92c2fa7cdc0d84c099e0",
+      "sha256": "6d0036b4449b5b27b3c690a5bcba4d6cb7dd767dc7594bc586053aee4a179494",
       "functions": []
     },
     {
@@ -24,7 +24,7 @@
     },
     {
       "path": "PROVENANCE.md",
-      "sha256": "cb24305b3edc145ce1405e7bc8318b9c3178daae11967f89fe0190e303959d3c",
+      "sha256": "7658cadbdc269d67f383bf0fefa85e20dafa282fe1f4654bafeaa9b65115b64a",
       "functions": []
     },
     {

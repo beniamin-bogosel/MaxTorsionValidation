@@ -1,7 +1,8 @@
 # Preparing the GitHub source repository
 
 The source distribution contains the root documentation and prompt history,
-the original supplied programs in `Code/`, and maintained software in
+the three-lecture course in `DetailedExplanations/`, the original supplied
+programs in `Code/`, and maintained software in
 `MaxTorsionValidation/`. Its existing `freefem/`, `flint/`, and `symbolic/`
 subdirectories separate candidate generation, interval verification, and
 exact algebraic checks.
@@ -15,22 +16,23 @@ compact result summaries and the archive guide are included.
 In an actual Git checkout, review and stage the intended source files with:
 
 ```sh
-git add .gitignore README.md REVIEW.md PROVENANCE.md PromptHistory.md \
-  Code MaxTorsionValidation
+git add .gitignore README.md REVIEW.md PACKAGE_RECHECK.md PROVENANCE.md PromptHistory.md \
+  Code DetailedExplanations MaxTorsionValidation
 git diff --cached --stat
 git status --short
 ```
 
 Do not force-add ignored folders. `.gitignore` does not remove files already
 tracked by an existing repository; check the staged list if publishing from
-a different checkout. No Git initialization, staging, commit, remote setup,
-or upload was performed during this packaging task: the workspace exposes
-an empty, read-only `.git` placeholder rather than usable Git metadata.
+a different checkout. The course includes its LaTeX sources, bibliography,
+generated reference/table inputs, PDFs, and build instructions. Its ordinary
+PDF build works without the separately distributed manuscript and archives;
+refreshing its source snapshot requires those local research files.
 
 The [Section 8 guide](REPRODUCING_SECTION_8.md) contains commands for future
-builds and certificate runs. Packaging verification is limited to static
-syntax, path, and exclusion checks; it does not provide a fresh numerical
-certificate. The existing mathematical review is in [REVIEW.md](../../REVIEW.md).
+builds and certificate runs. The latest check scope and results are recorded
+in [PACKAGE_RECHECK.md](../../PACKAGE_RECHECK.md); the earlier mathematical
+review is in [REVIEW.md](../../REVIEW.md).
 
 For the complete research release, supply the author/citation and license
 metadata described in [PROVENANCE.md](../../PROVENANCE.md). Distribute the
