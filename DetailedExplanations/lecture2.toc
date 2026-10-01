@@ -6,9 +6,9 @@
 \contentsline {section}{\numberline {5}The computed linear systems also need error bounds}{4}{section.5}%
 \contentsline {subsection}{\numberline {5.1}Correct the centre before increasing the radius}{5}{subsection.5.1}%
 \contentsline {section}{\numberline {6}Four fluxes and the final continuous enclosure}{5}{section.6}%
-\contentsline {section}{\numberline {7}Regularity attempt: integrate the vertex-zero load by parts}{6}{section.7}%
+\contentsline {section}{\numberline {7}Regularity proof: integrate the vertex-zero load by parts}{6}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Why the ray densities have the right endpoint behavior}{7}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}The mixed-boundary ingredient, with its hypotheses visible}{7}{subsection.7.2}%
 \contentsline {section}{\numberline {8}The second derivatives: a necessary centre cancellation}{8}{section.8}%
 \contentsline {subsection}{\numberline {8.1}An explicit local lifting removes the centre values}{9}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}What part of the conjecture has this proved?}{9}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.2}Scope of the regularity and rate theorems}{9}{subsection.8.2}%

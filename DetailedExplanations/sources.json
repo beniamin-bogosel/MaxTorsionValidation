@@ -1,20 +1,20 @@
 {
-  "snapshot_date": "2026-09-13",
+  "snapshot_date": "2026-10-01",
   "scope": "Sources consulted for the course, not a new certification run",
   "files": [
     {
       "path": "theory/torsional_rigidity_regular_polygon.tex",
-      "sha256": "6a8db02676de8edb490171019af28cde71595b5df0429d01c70614ac727456ca",
+      "sha256": "e80327acf04c29d67868658da8f455da4eea29f53e67563496f2e00f6f125d94",
       "functions": []
     },
     {
       "path": "theory/torsional_rigidity_regular_polygon.aux",
-      "sha256": "c5d669ac94ec83d31ff17b2c81cd044628718c198381ad86668a6a808d35e5bb",
+      "sha256": "381b161f40c00c35d0a42508c928bd63c3d080f4254b752782d1b576304cbb12",
       "functions": []
     },
     {
       "path": "theory/torsional_rigidity_regular_polygon.bib",
-      "sha256": "6d0036b4449b5b27b3c690a5bcba4d6cb7dd767dc7594bc586053aee4a179494",
+      "sha256": "7f27b9c5520bddc29662eddd8cee46c5b2b00e587afdacc41846a70b5a20768d",
       "functions": []
     },
     {

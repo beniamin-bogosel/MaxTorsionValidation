@@ -2,7 +2,7 @@
 \label{l2:errors}
 \noindent\textbf{Aim.} Turn a finite element Hessian entry into an enclosure
 of the continuous entry. Then investigate the transmission regularity
-behind its observed quadratic convergence. A 90-minute lecture can cover
+behind its quadratic Galerkin convergence. A 90-minute lecture can cover
 the error identities and first-derivative regularity; the second-derivative
 argument below is suitable for a further reading session.
 
@@ -345,13 +345,16 @@ $E_{\rm alg}$ is the error in the discrete centre, and the last term
 accounts for the area-normalization coefficient multiplying $J$.
 If the evaluated centre is an interval, its arithmetic radius is retained.
 
-\section{Regularity attempt: integrate the vertex-zero load by parts}
+\section{Regularity proof: integrate the vertex-zero load by parts}
 \label{l2:rayproof}
 This section develops the proposed Bogosel--Bucur route. We will prove
 broken regularity of first and second material derivatives \emph{at the
-regular polygon}, using the standard polygonal mixed-boundary regularity
-theorem stated below. A separate final paragraph explains why this does
-not yet prove the manuscript's stronger uniform-neighborhood formulation.
+regular polygon}. The positive shift is justified by a compatible trace
+lifting and reflection, followed by the Dirichlet polygonal shift theorem.
+The manuscript now proves this fixed-polygon result in
+Proposition~\meq{prop:broken-regularity} and its quadratic Hessian rate in
+Theorem~\meq{prop:h2}. Uniformity over perturbed polygons remains a
+separate question.
 
 For $c=1,2$, put the weak equation for $U_0^c$ in the form
 \begin{align}
@@ -450,24 +453,36 @@ boundary and outward Neumann data $g/2$ on the positive part of the cut,
 zero on its negative part. The factor $1/2$ follows by doubling the weak
 integral over the half-polygon.
 
-Apply the polygonal Dirichlet--Neumann shift theorem of Grisvard
-\cite[Theorem 4.4.3.7 and Corollary 4.4.3.8]{Grisvard1985}.
-Its use here is the same as the
-ray decomposition in \cite[Section 3]{BogoselBucurValidated2024}; the local
-reviewed PDF has Lemma 3.1 and Remark 3.2. The hypotheses can be checked
-geometrically. At a vertex on the cut the mixed angle is
-$(\pi-\vartheta)/2<\pi/2$, whose first mixed corner exponent is
-$\pi/(\pi-\vartheta)>1$. Other Dirichlet angles are less than $\pi$.
-When $n$ is odd, the negative cut meets the opposite edge at a right angle;
-the Neumann data are identically zero near that point, and even reflection
-reduces the local problem to a straight Dirichlet boundary. There is no
-nonpolynomial corner singularity of exponent at most one there.
-The Neumann datum extends through the centre in $H^{1/2+\sigma}$,
-and its zero value at the positive endpoint supplies the compatibility
-with the zero Dirichlet data. These facts give a positive shift above
-$H^2$, after shrinking the exponent. Reflection back gives the assertion.
-Away from the loaded positive ray, the equation is locally harmonic across
-the artificial negative cut, so no extra interface is introduced.
+To justify a positive shift, lift the nonzero Neumann data before
+reflecting. Choose $0<\sigma'<\min\{\sigma,1/2,2/(n-2)\}$.
+Prescribe zero value on the entire half-polygon boundary, outward normal
+derivative $g/2$ on the loaded cut, and zero normal derivative on all
+remaining sides. Theorem~1 of Bernardi--Dauge--Maday
+\cite{BernardiDaugeMaday2000}, with $p=2$, $s=2+\sigma'$, and two traces,
+gives a lifting $v_0\in H^{2+\sigma'}$. The corner compatibility conditions
+are precisely agreement of values and first gradients here. They hold
+because the prescribed value and both endpoint normal derivatives are
+zero. Zero extension through the centre preserves the required
+$H^{1/2+\sigma'}$ regularity of the cut data.
+
+The difference $W-v_0$ has homogeneous Neumann data on the cut.
+Its even reflection solves a Dirichlet problem on the full polygon,
+with right-hand side the even extension of $\Delta v_0$.
+This belongs to $H^{\sigma'}$ since $\sigma'<1/2$.
+The Dirichlet shift theorem \cite[Chapter~4]{Grisvard1985} gives
+$H^{2+\sigma'}$ regularity because $1+\sigma'<n/(n-2)$, the first
+Dirichlet corner exponent. Adding back $v_0$ proves the assertion on
+each half-polygon. This supplies the positive shift needed below;
+an $H^2$ estimate alone would not suffice.
+
+For odd $n$, the negative cut ends at an edge midpoint with zero Neumann
+data nearby; reflection gives a straight Dirichlet boundary there.
+Across the interior of that negative cut, $W$ is harmonic and its first
+derivatives match. Its piecewise $H^{\sigma'}$ second derivatives glue
+for $\sigma'<1/2$, so the same regularity holds on each original fan
+sector even when the cut crosses a sector. The ray decomposition follows
+\cite[Section~3]{BogoselBucurValidated2024}; the trace lifting above makes
+the endpoint compatibility explicit.
 \end{proof}
 
 \begin{proposition}[First material derivatives at the regular polygon]
@@ -565,8 +580,7 @@ volume problem and the isolated ray problems can now be treated separately.
 
 \begin{proposition}[Second material derivatives at the regular polygon]
 \label{l2:secondproposition}
-Under the polygonal shift theorem used in Lemma~\ref{l2:raylemma}, the
-exact second material derivative $u_{qr}$ belongs to $H^2(T_j)$ for every
+The exact second material derivative $u_{qr}$ belongs to $H^2(T_j)$ for every
 fan triangle, every fixed regular polygon, and every pair of vertex
 directions $q,r$.
 \end{proposition}
@@ -580,21 +594,19 @@ is $H^2$ on each fan triangle. There are finitely many rays and finitely
 many vertex coordinates, so the argument applies to all mixed directions.
 \end{proof}
 
-\subsection{What part of the conjecture has this proved?}
+\subsection{Scope of the regularity and rate theorems}
 The argument proves the qualitative broken regularity of the state,
 first derivatives, and second derivatives \emph{at $P_n$}, for fixed $n$.
 It also gives uniformity over bounded vertex directions there, by finite
 dimensionality and bilinearity. Constants may depend on $n$; the corner
 exponent tends to one as $n$ grows.
 
-The manuscript's Conjecture~\meq{conj:h2} asks for uniform broken
-regularity for the parameterized family in a neighborhood. That stronger
-statement does not follow just by rotating and reflecting the regular
-polygon: the perturbed polygons no longer have its reflection symmetries.
-A proof still needs stability of the relevant transmission estimates
-under these geometric perturbations, or a parameter-dependent corner
-expansion with uniform control. These notes do not claim that step is
-proved, and do not change the manuscript's conjecture or its theorem.
+The manuscript's Theorem~\meq{prop:h2} now states the Hessian rate at
+this fixed regular polygon. Uniform broken regularity in a neighborhood
+of perturbed polygons is a stronger statement: those polygons no longer
+have the reflection symmetries used here. Such an extension would need
+stability of the transmission estimates under geometric perturbations,
+or a parameter-dependent corner expansion with uniform control.
 
 For the Hessian rate \emph{at the regular polygon}, the regularity just
 proved is sufficient. Broken interpolation and the differentiated

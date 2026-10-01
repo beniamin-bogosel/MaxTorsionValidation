@@ -1,5 +1,12 @@
 \begin{thebibliography}{1}
 
+\bibitem{BernardiDaugeMaday2000}
+C.~Bernardi, M.~Dauge, and Y.~Maday.
+\newblock Compatibilit{\'e} de traces aux ar{\^e}tes et coins d'un
+  poly{\`e}dre.
+\newblock {\em Comptes Rendus de l'Acad{\'e}mie des Sciences, S{\'e}rie I,
+  Math{\'e}matique}, 331(9):679--684, 2000.
+
 \bibitem{BogoselBucurValidated2024}
 B.~Bogosel and D.~Bucur.
 \newblock Polygonal {Faber--Krahn} inequality: local minimality via validated
